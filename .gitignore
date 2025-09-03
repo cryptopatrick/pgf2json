@@ -1,2 +1,8 @@
+# Folders
 /target
 /docs-vibe
+
+# Files
+.claude
+.DS_Store
+CLAUDE.md
