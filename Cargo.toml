@@ -1,0 +1,30 @@
+[package]
+name = "pgf2json.rs"
+version = "0.1.0"
+authors = ["CryptoPatrick <cryptopatrick@gmail.com>"]
+description = """
+This crate is an Application Programming Interface to load and interpret grammars compiled in Portable Grammar Format (PGF). The PGF format is produced as a final output from the GF compiler. The API is meant to be used for embedding GF grammars in Rust programs.
+"""
+documentation = "https://github.com/CryptoPatrick/pgf2json"
+homepage = "https://github.com/CryptoPatrick/pgf2json"
+repository = "https://github.com/CryptoPatrick/pgf2json"
+keywords = ["pgf", "gf", "grammars", "nlp"]
+categories = ["command-line-utilities", "text-processing"]
+license = "Unlicense OR MIT"
+exclude = [
+  "HomebrewFormula",
+  "/.github/",
+  "/ci/",
+  "/pkg/brew",
+  "/benchsuite/",
+  "/scripts/",
+]
+build = "build.rs"
+autotests = false
+edition = "2021"
+rust-version = "1.88"
+
+[dependencies]
+byteorder = "1.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
