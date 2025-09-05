@@ -1,0 +1,735 @@
+{
+    "pgf_format": {
+      "version": "1.0",
+      "produced_by": "GF 3.2",
+      "output_format_command": "gf -make -output-format=pgf_pretty MyGrammar.pgf",
+      "description": "The Portable Grammar Format (PGF) is a binary format where grammar structures are serialized as a sequence of bytes. Each structure is a list of sequentially serialized fields, which can be another structure or a basic type.",
+      "basic_types": [
+        {
+          "type": "Int8",
+          "description": "8 bits integer, with sign, represented as a single byte."
+        },
+        {
+          "type": "Int16",
+          "description": "16 bits integer, with sign, represented as a sequence of two bytes (most significant byte first)."
+        },
+        {
+          "type": "Int",
+          "description": "32 bits integer with sign, encoded as a sequence of bytes with variable length. The last bit of each byte indicates if more bytes follow (1 = more bytes, 0 = last byte). The other 7 bits are parts of the integer, stored from least to most significant."
+        },
+        {
+          "type": "String",
+          "description": "A string in UTF-8 encoding. First stores the length as an Int (variable length integer) representing the number of Unicode characters, followed by the UTF-8 encoded string."
+        },
+        {
+          "type": "Float",
+          "description": "A double precision floating point number serialized in big-endian format following the IEEE754 standard."
+        },
+        {
+          "type": "List",
+          "description": "A list of objects, serialized as a variable length integer indicating the number of objects, followed by the serialization of each element."
+        }
+      ],
+      "structures": [
+        {
+          "name": "PGF",
+          "description": "The entire PGF file contains one structure corresponding to the abstract structure G (Definition 1, Section 2.1).",
+          "fields": [
+            {
+              "type": "Int16",
+              "description": "Major PGF version, should be 1."
+            },
+            {
+              "type": "Int16",
+              "description": "Minor PGF version, should be 0."
+            },
+            {
+              "type": "[Flag]",
+              "description": "Global flags."
+            },
+            {
+              "type": "Abstract",
+              "description": "Abstract syntax."
+            },
+            {
+              "type": "[Concrete]",
+              "description": "List of concrete syntaxes."
+            }
+          ],
+          "notes": "Version fields are updated if PGF changes to maintain backward compatibility."
+        },
+        {
+          "name": "Flag",
+          "description": "Pairs of a name and a literal, storing configuration parameters accessible only internally by the interpreter.",
+          "fields": [
+            {
+              "type": "String",
+              "description": "Flag name."
+            },
+            {
+              "type": "Literal",
+              "description": "Flag value."
+            }
+          ]
+        },
+        {
+          "name": "Abstract",
+          "description": "Represents the abstract syntax A (Definition 2, Section 2.1). The name is the top-level abstract module name, and the start category is specified with the 'startcat' flag.",
+          "fields": [
+            {
+              "type": "String",
+              "description": "Name of the abstract syntax."
+            },
+            {
+              "type": "[Flag]",
+              "description": "List of flags."
+            },
+            {
+              "type": "[AbsFun]",
+              "description": "List of abstract functions."
+            },
+            {
+              "type": "[AbsCat]",
+              "description": "List of abstract categories."
+            }
+          ],
+          "notes": "All lists are sorted by name for efficient binary search."
+        },
+        {
+          "name": "AbsFun",
+          "description": "Represents an abstract function.",
+          "fields": [
+            {
+              "type": "String",
+              "description": "Name of the function."
+            },
+            {
+              "type": "Type",
+              "description": "Function's type signature."
+            },
+            {
+              "type": "Int",
+              "description": "Function's arity."
+            },
+            {
+              "type": "Int8",
+              "description": "Constructor tag: 0 for constructor, 1 for function."
+            },
+            {
+              "type": "[Equation]",
+              "description": "Definitional equations for the function if it is not a constructor."
+            },
+            {
+              "type": "Float",
+              "description": "Probability of the function."
+            }
+          ],
+          "notes": "Distinguishes between constructors (data f: T) and computable functions (fun f: T). Arity is the number of arguments for pattern matching in functions with equations; zero for constructors or axioms."
+        },
+        {
+          "name": "AbsCat",
+          "description": "Represents an abstract category, including its name, type information, and functions returning this category.",
+          "fields": [
+            {
+              "type": "String",
+              "description": "Name of the category."
+            },
+            {
+              "type": "[Hypo]",
+              "description": "List of hypotheses."
+            },
+            {
+              "type": "[CatFun]",
+              "description": "List of functions in source-code order."
+            }
+          ]
+        },
+        {
+          "name": "CatFun",
+          "description": "Used internally to store abstract functions with their probabilities.",
+          "fields": [
+            {
+              "type": "String",
+              "description": "Name of the function."
+            },
+            {
+              "type": "Float",
+              "description": "Probability of the function."
+            }
+          ]
+        },
+        {
+          "name": "Type",
+          "description": "Represents an abstract syntax type in the form (X1:T1) → (X2:T2) → ... → (Xn:Tn) → C e1...en.",
+          "fields": [
+            {
+              "type": "[Hypo]",
+              "description": "List of hypotheses."
+            },
+            {
+              "type": "String",
+              "description": "Name of the category in the return type."
+            },
+            {
+              "type": "[Expression]",
+              "description": "Indices in the return type."
+            }
+          ]
+        },
+        {
+          "name": "Hypo",
+          "description": "Represents an argument in a function type, specifying whether it is explicit (x:T) or implicit ({x}:T).",
+          "fields": [
+            {
+              "type": "BindType",
+              "description": "Binding type (implicit/explicit argument)."
+            },
+            {
+              "type": "String",
+              "description": "Variable name or '_' if no variable is bound."
+            },
+            {
+              "type": "Type",
+              "description": "Type of the variable."
+            }
+          ]
+        },
+        {
+          "name": "Equation",
+          "description": "Represents a computable function's equation as a pair of patterns and an expression.",
+          "fields": [
+            {
+              "type": "[Pattern]",
+              "description": "Sequence of patterns."
+            },
+            {
+              "type": "Expression",
+              "description": "Expression."
+            }
+          ],
+          "notes": "All equations have the same number of patterns, equal to the function's arity."
+        },
+        {
+          "name": "Pattern",
+          "description": "Represents a single pattern in a definitional equation, starting with a tag encoding the pattern type.",
+          "fields": [
+            {
+              "type": "Int8",
+              "description": "Tag encoding the kind of pattern."
+            }
+          ],
+          "pattern_types": [
+            {
+              "tag": 0,
+              "description": "Pattern matching on constructor application (c p1 p2 ... pn).",
+              "fields": [
+                {
+                  "type": "String",
+                  "description": "Name of the constructor."
+                },
+                {
+                  "type": "[Pattern]",
+                  "description": "List of nested patterns for the arguments."
+                }
+              ]
+            },
+            {
+              "tag": 1,
+              "description": "Variable type.",
+              "fields": [
+                {
+                  "type": "String",
+                  "description": "Variable name."
+                }
+              ]
+            },
+            {
+              "tag": 2,
+              "description": "Pattern binding a variable with nested pattern matching (x@p).",
+              "fields": [
+                {
+                  "type": "String",
+                  "description": "Variable name."
+                },
+                {
+                  "type": "Pattern",
+                  "description": "Nested pattern."
+                }
+              ]
+            },
+            {
+              "tag": 3,
+              "description": "Wildcard (_)."
+            },
+            {
+              "tag": 4,
+              "description": "Matching a literal (string, integer, or float).",
+              "fields": [
+                {
+                  "type": "Literal",
+                  "description": "Value of the literal."
+                }
+              ]
+            },
+            {
+              "tag": 5,
+              "description": "Pattern matching on an implicit argument ({P}).",
+              "fields": [
+                {
+                  "type": "[Pattern]",
+                  "description": "Nested pattern."
+                }
+              ]
+            },
+            {
+              "tag": 6,
+              "description": "Inaccessible pattern (~p).",
+              "fields": [
+                {
+                  "type": "Expr",
+                  "description": "Nested pattern."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Expression",
+          "description": "Encodes an abstract syntax expression (tree), starting with a tag.",
+          "fields": [
+            {
+              "type": "Int8",
+              "description": "Tag encoding the expression type."
+            }
+          ],
+          "expression_types": [
+            {
+              "tag": 0,
+              "description": "Lambda abstraction (\\x → ...).",
+              "fields": [
+                {
+                  "type": "BindType",
+                  "description": "Tag for implicit/explicit argument."
+                },
+                {
+                  "type": "String",
+                  "description": "Variable name."
+                },
+                {
+                  "type": "Expression",
+                  "description": "Body of the lambda abstraction."
+                }
+              ]
+            },
+            {
+              "tag": 1,
+              "description": "Application (f x).",
+              "fields": [
+                {
+                  "type": "Expression",
+                  "description": "Left-hand expression."
+                },
+                {
+                  "type": "Expression",
+                  "description": "Right-hand expression."
+                }
+              ]
+            },
+            {
+              "tag": 2,
+              "description": "Literal value (string, integer, or float).",
+              "fields": [
+                {
+                  "type": "Literal",
+                  "description": "Value of the literal."
+                }
+              ]
+            },
+            {
+              "tag": 3,
+              "description": "Metavariable (?0, ?1, ...).",
+              "fields": [
+                {
+                  "type": "Int",
+                  "description": "ID of the metavariable."
+                }
+              ]
+            },
+            {
+              "tag": 4,
+              "description": "Abstract syntax function.",
+              "fields": [
+                {
+                  "type": "String",
+                  "description": "Function name."
+                }
+              ]
+            },
+            {
+              "tag": 5,
+              "description": "Variable.",
+              "fields": [
+                {
+                  "type": "Int",
+                  "description": "de Bruijn index of the variable."
+                }
+              ]
+            },
+            {
+              "tag": 6,
+              "description": "Expression with a type annotation (e:t).",
+              "fields": [
+                {
+                  "type": "Expression",
+                  "description": "Annotated expression."
+                },
+                {
+                  "type": "Type",
+                  "description": "Type of the expression."
+                }
+              ]
+            },
+            {
+              "tag": 7,
+              "description": "Implicit argument ({e}).",
+              "fields": [
+                {
+                  "type": "Expression",
+                  "description": "Expression for the argument."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Literal",
+          "description": "Represents built-in literal constants, starting with a tag encoding the type.",
+          "fields": [
+            {
+              "type": "Int8",
+              "description": "Literal type."
+            }
+          ],
+          "literal_types": [
+            {
+              "tag": 0,
+              "description": "String type.",
+              "fields": [
+                {
+                  "type": "String",
+                  "description": "Value."
+                }
+              ]
+            },
+            {
+              "tag": 1,
+              "description": "Integer.",
+              "fields": [
+                {
+                  "type": "Int",
+                  "description": "Value."
+                }
+              ]
+            },
+            {
+              "tag": 2,
+              "description": "Float type.",
+              "fields": [
+                {
+                  "type": "Float",
+                  "description": "Value."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "BindType",
+          "description": "Encodes whether an argument is explicit or implicit.",
+          "fields": [
+            {
+              "type": "Int8",
+              "description": "Tag."
+            }
+          ]
+        },
+        {
+          "name": "Concrete",
+          "description": "Represents a concrete syntax C (Definition 3, Section 2.1), with the name of the top-level concrete module.",
+          "fields": [
+            {
+              "type": "String",
+              "description": "Name of the concrete syntax."
+            },
+            {
+              "type": "[Flag]",
+              "description": "List of flags."
+            },
+            {
+              "type": "[PrintName]",
+              "description": "List of print names."
+            },
+            {
+              "type": "[Sequence]",
+              "description": "Table with sequences (Section 2.8.1)."
+            },
+            {
+              "type": "[CncFun]",
+              "description": "List of concrete functions."
+            },
+            {
+              "type": "[LinDef]",
+              "description": "List of functions for default linearization."
+            },
+            {
+              "type": "[ProductionSet]",
+              "description": "List of production sets."
+            },
+            {
+              "type": "[CncCat]",
+              "description": "List of concrete categories."
+            },
+            {
+              "type": "Int",
+              "description": "Total number of concrete categories allocated for the grammar."
+            }
+          ],
+          "notes": [
+            "Lists Flag, PrintName, and CncCat are sorted by name for efficient binary search.",
+            "The total number of concrete categories is used by the parser to determine if a category is part of the grammar or created during parsing, aiding in metavariable placement (Section 2.3.7)."
+          ]
+        },
+        {
+          "name": "PrintName",
+          "description": "Stores user-friendly names for functions or categories for display in the UI, aiding localization.",
+          "fields": [
+            {
+              "type": "String",
+              "description": "Name of the function or category."
+            },
+            {
+              "type": "String",
+              "description": "Printable name."
+            }
+          ]
+        },
+        {
+          "name": "Sequence",
+          "description": "Represents a single sequence in PMCFG, produced during common subexpression optimization (Section 2.8.1).",
+          "fields": [
+            {
+              "type": "[Symbol]",
+              "description": "List of symbols."
+            }
+          ]
+        },
+        {
+          "name": "Symbol",
+          "description": "Represents a terminal or function argument in a sequence, starting with a tag encoding the symbol type.",
+          "fields": [
+            {
+              "type": "Int8",
+              "description": "Expression tag."
+            }
+          ],
+          "symbol_types": [
+            {
+              "tag": 0,
+              "description": "Argument representation (<k;l>) where k is the argument index and l is the constituent index.",
+              "fields": [
+                {
+                  "type": "Int",
+                  "description": "Argument index."
+                },
+                {
+                  "type": "Int",
+                  "description": "Constituent index."
+                }
+              ]
+            },
+            {
+              "tag": 1,
+              "description": "Argument targeting a literal category ({d;r}) if not a fresh category (Section 2.6).",
+              "fields": [
+                {
+                  "type": "Int",
+                  "description": "Argument index."
+                },
+                {
+                  "type": "Int",
+                  "description": "Constituent index."
+                }
+              ]
+            },
+            {
+              "tag": 2,
+              "description": "High-order argument (<d;$r>) (Section 2.7).",
+              "fields": [
+                {
+                  "type": "Int",
+                  "description": "Argument index."
+                },
+                {
+                  "type": "Int",
+                  "description": "Variable number."
+                }
+              ]
+            },
+            {
+              "tag": 3,
+              "description": "Terminal symbol representing a list of tokens.",
+              "fields": [
+                {
+                  "type": "[String]",
+                  "description": "Sequence of tokens."
+                }
+              ]
+            },
+            {
+              "tag": 4,
+              "description": "Alternative terminal symbol for phrases dependent on the next token's prefix (e.g., a/an in English).",
+              "fields": [
+                {
+                  "type": "[String]",
+                  "description": "Default form."
+                },
+                {
+                  "type": "[Alternative]",
+                  "description": "Sequence of alternatives."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Alternative",
+          "description": "Represents a phrase form dependent on the prefix of the next token (e.g., beau/bel for ami).",
+          "fields": [
+            {
+              "type": "[String]",
+              "description": "Tokens to use if the prefix matches."
+            },
+            {
+              "type": "[String]",
+              "description": "Prefix matched with the following tokens."
+            }
+          ]
+        },
+        {
+          "name": "CncFun",
+          "description": "Defines a concrete function (Definition 4, Section 2.1), mapping to an abstract function with a list of sequence indices.",
+          "fields": [
+            {
+              "type": "String",
+              "description": "Name of the corresponding abstract function."
+            },
+            {
+              "type": "[Int]",
+              "description": "List of indices into the sequences array."
+            }
+          ]
+        },
+        {
+          "name": "LinDef",
+          "description": "Stores concrete functions for default linearization of a concrete category (Section 2.5).",
+          "fields": [
+            {
+              "type": "Int",
+              "description": "Concrete category."
+            },
+            {
+              "type": "[Int]",
+              "description": "List of concrete functions."
+            }
+          ]
+        },
+        {
+          "name": "ProductionSet",
+          "description": "Groups productions with the same result category for efficient parser prediction.",
+          "fields": [
+            {
+              "type": "Int",
+              "description": "Result category."
+            },
+            {
+              "type": "[Production]",
+              "description": "List of productions."
+            }
+          ]
+        },
+        {
+          "name": "Production",
+          "description": "Represents either an application or a coercion.",
+          "fields": [
+            {
+              "type": "Int8",
+              "description": "Tag."
+            }
+          ],
+          "production_types": [
+            {
+              "tag": 0,
+              "description": "Application (Definition 4, Section 2.1).",
+              "fields": [
+                {
+                  "type": "Int",
+                  "description": "Concrete function."
+                },
+                {
+                  "type": "[PArg]",
+                  "description": "List of arguments."
+                }
+              ]
+            },
+            {
+              "tag": 1,
+              "description": "Coercion (Section 2.8.1).",
+              "fields": [
+                {
+                  "type": "Int8",
+                  "description": "Concrete category."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "PArg",
+          "description": "Represents an argument in a production.",
+          "fields": [
+            {
+              "type": "[Int]",
+              "description": "Categories of high-order arguments (Section 2.7)."
+            },
+            {
+              "type": "Int",
+              "description": "Concrete category."
+            }
+          ]
+        },
+        {
+          "name": "CncCat",
+          "description": "Represents a set of concrete categories mapping to the same abstract category, storing the first and last category and constituent names.",
+          "fields": [
+            {
+              "type": "String",
+              "description": "Name of the corresponding abstract category (by ψ_N)."
+            },
+            {
+              "type": "Int",
+              "description": "First concrete category."
+            },
+            {
+              "type": "Int",
+              "description": "Last concrete category."
+            },
+            {
+              "type": "[String]",
+              "description": "List of constituent names."
+            }
+          ],
+          "notes": "The length of the constituent names list equals the dimension of the category."
+        }
+      ]
+    }
+  }
