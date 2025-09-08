@@ -5,7 +5,8 @@ authors = ["CryptoPatrick <cryptopatrick@gmail.com>"]
 description = """
 This crate is an Application Programming Interface to load and interpret grammars compiled in Portable Grammar Format (PGF). The PGF format is produced as a final output from the GF compiler. The API is meant to be used for embedding GF grammars in Rust programs.
 """
-documentation = "https://github.com/CryptoPatrick/pgf2json"
+readme = "README.md"
+documentation = "https://docs.rs/pgf2json"
 homepage = "https://github.com/CryptoPatrick/pgf2json"
 repository = "https://github.com/CryptoPatrick/pgf2json"
 keywords = ["pgf", "gf", "grammars", "nlp"]
