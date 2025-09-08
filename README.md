@@ -4,9 +4,14 @@
 A Rust library for parsing Portable Grammar Format (PGF) files and converting them to JSON.
 This crate provides an API to load and interpret grammars compiled in Portable 
 Grammar Format (PGF), which is the final output format from the Grammatical 
-Framework (GF) compiler. The library enables embedding GF grammars in Rust programs.
+Framework (GF) compiler. 
+
+The library enables embedding GF grammars in Rust programs.
 The current implementation is sensitive to PGF versioning; stable for 1.0 and 
 experimental support for the yanked (upcoming?) version 2.1 .
+
+### Documentation
+https://docs.rs/pgf2json
 
 ## Tread carefully, here be dragons!
 There seems to be a minor format difference between PGF 1.0 and 2.1 that needs addressing (see more below), 
