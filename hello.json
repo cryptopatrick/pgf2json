@@ -32,8 +32,8 @@
         "prob": 0.3333333333333333
       }
     },
-    "name": "Mum",
-    "startcat": "Recipient"
+    "name": "World",
+    "startcat": "Int"
   },
   "concretes": {}
 }
