@@ -112,8 +112,8 @@
         "prob": 0.25
       }
     },
-    "name": "Italian",
-    "startcat": "Kind"
+    "name": "Fish",
+    "startcat": "Float"
   },
   "concretes": {}
 }

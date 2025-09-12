@@ -26,8 +26,8 @@
         "prob": 1.0
       }
     },
-    "name": "Paris",
-    "startcat": "Station"
+    "name": "Hamburg",
+    "startcat": "Float"
   },
   "concretes": {}
 }
