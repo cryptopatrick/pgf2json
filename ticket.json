@@ -27,7 +27,7 @@
       }
     },
     "name": "Hamburg",
-    "startcat": "Float"
+    "startcat": "Request"
   },
   "concretes": {}
 }

@@ -112,8 +112,8 @@
         "prob": 0.25
       }
     },
-    "name": "Fish",
-    "startcat": "Float"
+    "name": "This",
+    "startcat": "Quality"
   },
   "concretes": {}
 }

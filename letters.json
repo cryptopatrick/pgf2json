@@ -184,8 +184,8 @@
         "prob": 0.038461538461538464
       }
     },
-    "name": "r",
-    "startcat": "Float"
+    "name": "j",
+    "startcat": "String"
   },
   "concretes": {}
 }

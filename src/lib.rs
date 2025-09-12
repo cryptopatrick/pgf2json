@@ -27,25 +27,25 @@
 //! sequentially serialized fields, where every field is either another
 //! structure or has a basic type. The allowed basic types are:
 //!
-//! - ﻿﻿Int8 - 8 bits integer, with sign, represented as a single byte.
-//! - ﻿﻿Int16 - 16 bits integer, with sign, represented as a sequence of two
-//! bytes where the most significant byte is stored first.
-//! - ﻿﻿Int - a 32 bits integer with sign encoded as a sequence of bytes with
-//! variable length. The last bit of every byte is an indication for whether
-//! there are more bytes left. If the bit is 1, then there is at least one more
-//! byte to be read, otherwise this is the last byte in the sequence.
-//! The other 7 bits are parts of the stored integer. We store the bits from the
-//!  least significant to the most significant.
-//! - ﻿﻿String - a string in UTF-8 encoding. We first store as Int (a variable
-//! length integer) the length of the string in number of Unicode characters and
-//!  after that we add the UTF-8 encoding of the string itself.
-//! - ﻿﻿Float - A double precision floating point number serialized in a
-//! big-endian format following the IEEE754 standard.
-//! - ﻿﻿List - Many of the object fields are lists of other objects.
-//! We say that the field is of type [Object] if it contains a list of objects
-//! of type Object. The list is serialized as a variable length integer
-//! indicating the length of the list in number of objects, followed by the
-//! serialization of the elements of the list.
+//! - ﻿﻿`Int8` - 8 bits integer, with sign, represented as a single byte.
+//! - ﻿﻿`Int16` - 16 bits integer, with sign, represented as a sequence of two
+//!   bytes where the most significant byte is stored first.
+//! - ﻿﻿`Int` - a 32 bits integer with sign encoded as a sequence of bytes with
+//!   variable length. The last bit of every byte is an indication for whether
+//!   there are more bytes left. If the bit is 1, then there is at least one more
+//!   byte to be read, otherwise this is the last byte in the sequence.
+//!   The other 7 bits are parts of the stored integer. We store the bits from the
+//!   least significant to the most significant.
+//! - ﻿﻿`String` - a string in UTF-8 encoding. We first store as `Int` (a variable
+//!   length integer) the length of the string in number of Unicode characters and
+//!   after that we add the UTF-8 encoding of the string itself.
+//! - ﻿﻿`Float` - A double precision floating point number serialized in a
+//!   big-endian format following the IEEE754 standard.
+//! - ﻿﻿`List` - Many of the object fields are lists of other objects.
+//!   We say that the field is of type [`Object`] if it contains a list of objects
+//!   of type `Object`. The list is serialized as a variable length integer
+//!   indicating the length of the list in number of objects, followed by the
+//!   serialization of the elements of the list.
 //!
 //! ---
 //! ### PGF
@@ -56,11 +56,11 @@
 //!
 //! | **type** | **description**                 |
 //! | -------- | ------------------------------- |
-//! | Int16    | major PGF version, should be 1. |
-//! | Int16   | minor PGF version, should be 0. |
-//! | [Flag]   | global flags                    |
-//! | Abstract | abstract syntax                 |
-//! | Concrete | list of concrete syntaxes       |
+//! | `Int16`    | major PGF version, should be 1. |
+//! | `Int16`   | minor PGF version, should be 0. |
+//! | [`Flag`]   | global flags                    |
+//! | `Abstract` | abstract syntax                 |
+//! | `Concrete` | list of concrete syntaxes       |
 //! If PGF is changed in the future, the version in the first two fields should be updated.
 //! The implementations can use the version number to maintain backward compatibility.
 //!
@@ -73,8 +73,8 @@
 //!
 //! | type    | description |
 //! | ------- | ----------- |
-//! | String  | flag name   |
-//! | Literal | flag value  |
+//! | `String`  | flag name   |
+//! | `Literal` | flag value  |
 //!
 //! ---
 //! ### Abstract
@@ -85,25 +85,25 @@
 //!
 //! | type     | description                     |
 //! | -------- | ------------------------------- |
-//! | String   | the name of the abstract syntax |
-//! | [Flag]   | a list of flags                 |
-//! | [AbsFun] | a list of abstract functions    |
-//! | [AbsCat] | a list of abstract categories   |
+//! | `String`   | the name of the abstract syntax |
+//! | [`Flag`]   | a list of flags                 |
+//! | [`AbsFun`] | a list of abstract functions    |
+//! | [`AbsCat`] | a list of abstract categories   |
 //! Note: all lists are sorted by name which makes it easy to do binary search.
 //!
 //! ---
-//! ### AbsFun
+//! ### `AbsFun`
 //!
-//! Every abstract function is represented with one AbsFun object.
+//! Every abstract function is represented with one `AbsFun` object.
 //!
 //! | **type**   | **description**                                                     |
 //! | ---------- | ------------------------------------------------------------------- |
-//! | String     | the name of the function                                            |
-//! | Type       | function's type signature                                           |
-//! | Int        | function's arity                                                    |
-//! | Int8       | a constructor tag: 0 - constructor; 1 - function                    |
-//! | [Equation] | definitional equations for this function if it is not a constructor |
-//! | Float      | the probability of the function                                     |
+//! | `String`     | the name of the function                                            |
+//! | `Type`       | function's type signature                                           |
+//! | `Int`        | function's arity                                                    |
+//! | `Int8`       | a constructor tag: 0 - constructor; 1 - function                    |
+//! | [`Equation`] | definitional equations for this function if it is not a constructor |
+//! | `Float`      | the probability of the function                                     |
 //! The constructor tag distinguishes between constructors and computable functions, i.e. we can distinguish between this two judgements:
 //!
 //! - ﻿﻿constructor: __data__ $f: T$
@@ -112,91 +112,93 @@
 //! If this is a function, then we also include a list of definitional equations. The list can be empty which means that the function is an axiom. In the cases, when we have at least one equation then the arity is the number of arguments that have to be known in order to do pattern matching. For constructors or axioms the arity is zero.
 //!
 //! ---
-//! ### AbsCat
+//! ### `AbsCat`
 //!
-//! Every abstract category is represented with one AbsCat object. The object includes the name and the type information for the category plus a list of all functions whose return type is this category. The functions are listed in the order in which they appear in the source code.
+//! Every abstract category is represented with one `AbsCat` object. The object includes the name and the type information for the category plus a list of all functions whose return type is this category. The functions are listed in the order in which they appear in the source code.
 //!
 //! | type     | description                              |
 //! | -------- | ---------------------------------------- |
-//! | String   | the name of the category                 |
-//! | [Hypo]   | a list of hypotheses                     |
-//! | [CatFun] | a list of functions in source-code order |
+//! | `String`   | the name of the category                 |
+//! | [`Hypo`]   | a list of hypotheses                     |
+//! | [`CatFun`] | a list of functions in source-code order |
 //!
 //! ---
-//! ### CatFun
+//! ### `CatFun`
 //!
 //! This object is used internally to keep a list of abstract functions with their probabilities.
 //!
 //! | type   | description                     |
 //! | ------ | ------------------------------- |
-//! | String | the name of the function        |
-//! | Float  | the probability of the function |
+//! | `String` | the name of the function        |
+//! | `Float`  | the probability of the function |
 //!
 //! ---
-//! ### Type
+//! ### `Type`
 //!
 //! This is the description of an abstract syntax type. Since the types are monomorphic and in normal form, they have the general form:
 //!
-//! $$(X_1 : T_1) → (x_2 : T_2) → ... → (x_n: T_n) → C e_1... e_n$$
+//! ```text
+//! (X₁ : T₁) → (x₂ : T₂) → ... → (xₙ: Tₙ) → C e₁... eₙ
+//! ```
 //!
-//! The list of hypotheses $(x_i: T_i)$ is stored as a list of Hypo objects and the indices $e_1 ... e_n$ are stored as a list of expressions.
+//! The list of hypotheses `(xᵢ: Tᵢ)` is stored as a list of `Hypo` objects and the indices `e₁ ... eₙ` are stored as a list of expressions.
 //!
 //! | type         | description                                  |
 //! | ------------ | -------------------------------------------- |
-//! | [Hypo]       | a list of hypotheses                         |
-//! | String       | the name of the category in the return type |
-//! | [Expression] | indices in the return type                   |
+//! | [`Hypo`]       | a list of hypotheses                         |
+//! | `String`       | the name of the category in the return type |
+//! | [`Expression`] | indices in the return type                   |
 //!
 //! ---
-//! ### Hypo
+//! ### `Hypo`
 //!
 //! Every Hypo object represents an argument in some function type. Since we support implicit and explicit arguments, the first field tells us whether we have explicit argument i.e. $(x: T)$ or implicit i.e. $(\{x\} : T)$. The next two fields are the name of the bound variable and its type. If no variable is bound then the name is $'_'$.
 //!
 //! | type     | description                                      |
 //! | -------- | ------------------------------------------------ |
-//! | BindType | the binding type i.e. implicit/explicit argument |
-//! | String   | a variable name or $'_'$ if no variable is bound |
-//! | Type     | the type of the variable                         |
+//! | `BindType` | the binding type i.e. implicit/explicit argument |
+//! | `String`   | a variable name or $'_'$ if no variable is bound |
+//! | `Type`     | the type of the variable                         |
 //!
 //! ---
 //!
-//! ### Equation
+//! ### `Equation`
 //!
 //! Every computable function is represented with a list of equations where the equation is a pair of list of patterns and an expression. All equations must have the same number of patterns which is equal to the arity of the function.
 //!
 //! | type       | description              |
 //! | ---------- | ------------------------ |
-//! | [Pattern]  | a sequence of patterns   |
+//! | [`Pattern`]  | a sequence of patterns   |
 //! | Expression | an expression            |
 //!
 //! ---
 //!
-//! ### Pattern
+//! ### `Pattern`
 //!
 //! This is the representation of a single pattern in a definitional equation for computable function. The first field is a tag which encodes the kind of pattern.
 //!
 //! | type | description |
 //! | ---- | ----------- |
-//! | Int8 | a tag       |
+//! | `Int8` | a tag       |
 //!
-//! 1. ﻿﻿﻿tag=0 - pattern matching on constructor application (i.e. $c\; p_1 \;  p_2 ... p_n$)
+//! 1. ﻿﻿﻿tag=0 - pattern matching on constructor application (i.e. `c p₁ p₂ ... pₙ`)
 //!
 //! | type      | description                                 |
 //! | --------- | ------------------------------------------- |
-//! | String    | the name of the constructor                 |
-//! | [Pattern] | a list of nested patterns for the arguments |
+//! | `String`    | the name of the constructor                 |
+//! | [`Pattern`] | a list of nested patterns for the arguments |
 //!
 //! 2. ﻿﻿﻿tag=1 - a variable type
 //!
 //! | type   | description       |
 //! | ------ | ----------------- |
-//! | String | the variable name |
+//! | `String` | the variable name |
 //!
 //! 3. ﻿﻿﻿tag=2 - a pattern which binds a variable but also does nested pattern matching (i.e. $x@p$) 
 //!
 //! | type    | description       |
 //! | ------- | ----------------- |
-//! | String  | the variable name |
+//! | `String`  | the variable name |
 //! | Pattern | a nested pattern  |
 //!
 //! 4. ﻿﻿﻿tag=3 - a wildcard (i.e. $_$).
@@ -205,13 +207,13 @@
 //!
 //! | type    | description              |
 //! | ------- | ------------------------ |
-//! | Literal | the value of the literal |
+//! | `Literal` | the value of the literal |
 //!
 //! 6. ﻿﻿﻿tag=5 - pattern matching on an implicit argument (i.e. $\{{P}\}$)
 //!
 //! | type      | description        |
 //! | --------- | ------------------ |
-//! | [Pattern] | the nested pattern |
+//! | [`Pattern`] | the nested pattern |
 //!
 //! 7. tag=6 - an inaccessible pattern $(\sim p)$
 //!
@@ -223,22 +225,22 @@
 //!
 //!
 //!
-//! ### Expression
+//! ### `Expression`
 //!
 //! This is the encoding of an abstract syntax expression (tree).
 //!
 //!
 //! | type | description |
 //! | ---- | ----------- |
-//! | Int8 | a tag       |
+//! | `Int8` | a tag       |
 //!
 //! 1. ﻿﻿﻿tag=0 - a lambda abstraction (i.e. $\\\x → ...$)
 //!
 //! | type       | description                          |
 //! | ---------- | ------------------------------------ |
-//! | BindType   | a tag for implicit/explicit argument |
-//! | String     | the variable name                    |
-//! | Expression | the body of the lambda abstraction   |
+//! | `BindType`   | a tag for implicit/explicit argument |
+//! | `String`     | the variable name                    |
+//! | `Expression` | the body of the lambda abstraction   |
 //!
 //! 2. ﻿﻿﻿tag=1 - application (i.e. $f x$)
 //!
@@ -250,24 +252,24 @@
 //!
 //! | type    | description              |
 //! | ------- | ------------------------ |
-//! | Literal | the value of the literal |
+//! | `Literal` | the value of the literal |
 //! 4. ﻿﻿﻿tag=3 - a metavariable (i.e. $?0, ?1,...$)
 //!
 //! | type | description                |
 //! | ---- | -------------------------- |
-//! | Int  | the id of the metavariable |
+//! | `Int`  | the id of the metavariable |
 //!
 //! 5. ﻿﻿﻿tag=4 - an abstract syntax function
 //!
 //! | type       | description                        |
 //! | ---------- | ---------------------------------- |
-//! | String     | the function name                  |
+//! | `String`     | the function name                  |
 //!
 //! 6. tag=5 - a variable
 //!
 //! | type | description                         |
 //! | ---- | ----------------------------------- |
-//! | Int  | the de Bruijn index of the variable |
+//! | `Int`  | the de Bruijn index of the variable |
 //!
 //! 7. tag=6 - an expression with a type annotation (i.e. $(e: t)$)
 //!
@@ -283,13 +285,13 @@
 //! | Expression | the expression for the argument |
 //!
 //! ---
-//! ### Literal
+//! ### `Literal`
 //!
-//! The Literal object represents the built-in kinds of literal constants. It starts with a tag which encodes the type of the constant:
+//! The `Literal` object represents the built-in kinds of literal constants. It starts with a tag which encodes the type of the constant:
 //!
 //! | type | description  |
 //! | ---- | ------------ |
-//! | Int8 | literal type |
+//! | `Int8` | literal type |
 //!
 //! Currently we support only three types of literals:
 //!
@@ -297,82 +299,82 @@
 //!
 //! | type   | description |
 //! | ------ | ----------- |
-//! | String | the value   |
+//! | `String` | the value   |
 //!
 //!
 //! 2. ﻿﻿﻿tag=1 - integer
 //!
 //! | type | description |
 //! | ---- | ----------- |
-//! | Int  | the value   |
+//! | `Int`  | the value   |
 //!
 //! 3. ﻿﻿﻿tag=2 - float type
 //!
 //! | type  | description |
 //! | ----- | ----------- |
-//! | Float | the value   |
+//! | `Float` | the value   |
 //!
 //! ---
 //!
 //!
-//! ### BindType
+//! ### `BindType`
 //!
 //! The bind type is a tag which encodes whether we have an explicit or an implicit argument.
 //!
 //! | type | description |
 //! | ---- | ----------- |
-//! | Int8 | tag         |
+//! | `Int8` | tag         |
 //!
 //! ---
 //!
 //!
-//! ### Concrete
+//! ### `Concrete`
 //!
 //! Every concrete syntax C (Definition 3, Section 2.1), in the grammar, is represented with an object. The name of the concrete syntax is the name of the top-level concrete module in the grammar.
 //!
 //! | type            | description                                                   |
 //! | --------------- | ------------------------------------------------------------- |
-//! | String          | the name of the concrete syntax                               |
-//! | [Flag]          | a list of flags                                               |
-//! | [PrintName]     | a list of print names                                         |
-//! | [Sequence]      | a table with sequences (Section 2.8.1)                        |
-//! | [CncFun]        | a list of concrete functions                                  |
-//! | [LinDef]        | a list of functions for default linearization                 |
-//! | [ProductionSet] | a list of production sets                                     |
-//! | [CncCat]        | a list of concrete categories                                 |
-//! | Int             | total number of concrete categories allocated for the grammar |
-//! _Note:_ The lists Flag, PrintName and CncCat are sorted by name which makes it easy to do binary search.
+//! | `String`          | the name of the concrete syntax                               |
+//! | [`Flag`]          | a list of flags                                               |
+//! | [`PrintName`]     | a list of print names                                         |
+//! | [`Sequence`]      | a table with sequences (Section 2.8.1)                        |
+//! | [`CncFun`]        | a list of concrete functions                                  |
+//! | [`LinDef`]        | a list of functions for default linearization                 |
+//! | [`ProductionSet`] | a list of production sets                                     |
+//! | [`CncCat`]        | a list of concrete categories                                 |
+//! | `Int`             | total number of concrete categories allocated for the grammar |
+//! _Note:_ The lists `Flag`, `PrintName` and `CncCat` are sorted by name which makes it easy to do binary search.
 //! _Note:_ The total number of concrete categories is used by the parser to determine whether a given category is part of the grammar, i.e. member of $N^C$, or it was created during the parsing. This is the way to decide when to put metavariables during the tree extraction (Section 2.3.7).
 //!
 //! ---
-//! ### PrintName
+//! ### `PrintName`
 //!
 //! Every function or category can have a print name which is a user friendly name that can be displayed in the user interface instead of the real one. The print names are defined in the concrete syntax which makes it easier to localize the user interface to different languages.
 //!
 //! | type   | description                              |
 //! | ------ | ---------------------------------------- |
-//! | String | the name of the function or the category |
-//! | String | the printable name                       |
+//! | `String` | the name of the function or the category |
+//! | `String` | the printable name                       |
 //!
 //! ---
 //!
-//! ### Sequence
+//! ### `Sequence`
 //!
 //! This is the representation of a single sequence in PMCFG, produced during the common subexpression optimization (Section 2.8.1).
 //!
 //! | type     | description       |
 //! | -------- | ----------------- |
-//! | [Symbol] | a list of symbols |
+//! | [`Symbol`] | a list of symbols |
 //!
 //! ---
 //!
-//! ### Symbol
+//! ### `Symbol`
 //!
 //! The Symbol (Definition 4, Section 2.1) represents either a terminal or a function argument in some sequence. The representation starts with a tag encoding the type of the symbol:
 //!
 //! | type | description    |
 //! | ---- | -------------- |
-//! | Int8 | expression tag |
+//! | `Int8` | expression tag |
 //!
 //! The supported symbols are:
 //!
@@ -380,122 +382,122 @@
 //!
 //! | type | description       |
 //! | ---- | ----------------- |
-//! | Int  | argument index    |
-//! | Int  | constituent index |
+//! | `Int`  | argument index    |
+//! | `Int`  | constituent index |
 //!
-//! 2. ﻿﻿﻿tag=1 This is again an argument but we use different tag to indicate that the target can be a literal category (see Section 2.6). If the target category is not a new fresh category, generated by the parser, then it is treated as a literal category. In the pgf_pretty format, we print this kind of symbols as $\{d; r\}$ instead of $\langle d; r  \rangle$ .
+//! 2. ﻿﻿﻿tag=1 This is again an argument but we use different tag to indicate that the target can be a literal category (see Section 2.6). If the target category is not a new fresh category, generated by the parser, then it is treated as a literal category. In the `pgf_pretty` format, we print this kind of symbols as `{d; r}` instead of `⟨d; r⟩`.
 //!
 //! | type | description       |
 //! | ---- | ----------------- |
-//! | Int  | argument index    |
-//! | Int  | constituent index |
+//! | `Int`  | argument index    |
+//! | `Int`  | constituent index |
 //!
 //! 3. ﻿﻿﻿tag=2 A high-order argument i.e. $\langle d; \$r)$ (Section 2.7).
 //!
 //! | type | description     |
 //! | ---- | --------------- |
-//! | Int  | argument index  |
-//! | Int  | variable number |
+//! | `Int`  | argument index  |
+//! | `Int`  | variable number |
 //!
 //! 4.  ﻿﻿﻿tag=3 This is a terminal symbol and represents a list of tokens.
 //!
 //! | type     | description        |
 //! | -------- | ------------------ |
-//! | [String] | sequence of tokens |
+//! | [`String`] | sequence of tokens |
 //!
 //! 5. ﻿﻿﻿tag=4 An alternative terminal symbol representing phrase, whose form depends on the prefix of the next token. It corresponds to the __pre__ construction in GF and encodes variations like a/an in English.
 //!
 //! | type          | description                |
 //! | ------------- | -------------------------- |
-//! | [String]      | the default form           |
-//! | [Alternative] | a sequence of alternatives |
+//! | [`String`]      | the default form           |
+//! | [`Alternative`] | a sequence of alternatives |
 //!
 //! ---
 //!
-//! ### Alternative
+//! ### `Alternative`
 //!
 //! Every Alternative represents one possible form of a phrase which is dependent on the prefix of the next token. For example when the construction:
 //!
 //! $$pre \{\text{"beau"}; \text{"bel"/"'ami"}\}$$
 //!
-//! is compiled then the alternative bel / ami will be represented by the pair (["bel"],[" ami"]).
+//! is compiled then the alternative bel / ami will be represented by the pair (`["bel"]`,`[" ami"]`).
 //!
 //! | type     | description                                  |
 //! | -------- | -------------------------------------------- |
-//! | [String] | The tokens to use if the prefix matches      |
-//! | [String] | The prefix matched with the following tokens |
+//! | [`String`] | The tokens to use if the prefix matches      |
+//! | [`String`] | The prefix matched with the following tokens |
 //!
 //! ---
-//! ### CncFun
+//! ### `CncFun`
 //!
 //! This is the definition of a single concrete function (Definition 4, Section
 //! 2.1). The first field is the name of the corresponding abstract function
-//! which gives us the direct definition of the $\psi_F$ mapping. The second
+//! which gives us the direct definition of the `ψ_F` mapping. The second
 //! field is the function definition given as a list of indices pointing to the
-//! sequences table (see the Concrete object).
+//! sequences table (see the `Concrete` object).
 //!
 //! | type   | description                                     |
 //! | ------ | ----------------------------------------------- |
-//! | String | the name of the corresponding abstract function |
-//! | [Int]  | list of indices into the sequences array        |
+//! | `String` | the name of the corresponding abstract function |
+//! | [`Int`]  | list of indices into the sequences array        |
 //!
 //! ---
 //!
-//! ### LinDef
+//! ### `LinDef`
 //!
-//! The LinDef object stores the list of all concrete functions that can be used for the default linearization of some concrete category (Section 2.5).
+//! The `LinDef` object stores the list of all concrete functions that can be used for the default linearization of some concrete category (Section 2.5).
 //!
 //! | type  | description                  |
 //! | ----- | ---------------------------- |
-//! | Int   | the concrete category        |
-//! | [Int] | a list of concrete functions |
+//! | `Int`   | the concrete category        |
+//! | [`Int`] | a list of concrete functions |
 //!
 //! ---
 //!
-//! ### ProductionSet
+//! ### `ProductionSet`
 //!
 //! A group of productions with the same result category. The productions are grouped because this makes it easier for the parser to find the relevant productions in the prediction step:
 //!
 //! | type         | description           |
 //! | ------------ | --------------------- |
-//! | Int          | the result category   |
-//! | [Production] | a list of productions |
+//! | `Int`          | the result category   |
+//! | [`Production`] | a list of productions |
 //!
 //! ---
 //!
-//! ### Production
+//! ### `Production`
 //!
 //! The production can be either an application of some function or a coercion.
 //!
 //! | type | description |
 //! | ---- | ----------- |
-//! | Int8 | tag         |
+//! | `Int8` | tag         |
 //! 1. tag=0 the production is an application (Definition 4, Section 2.1):
 //!
 //! | type   | description           |
 //! | ------ | --------------------- |
-//! | Int    | the concrete function |
-//! | [PArg] | a list of arguments   |
+//! | `Int`    | the concrete function |
+//! | [`PArg`] | a list of arguments   |
 //!
 //! 2. tag=1 the production is a coercion (Section 2.8.1):
 //!
 //! | type | description         |
 //! | ---- | ------------------- |
-//! | Int8 | a concrete category |
+//! | `Int8` | a concrete category |
 //!
 //! ---
-//! ### PArg
+//! ### `PArg`
 //!
 //! An argument in a production.
 //!
 //! | type  | description                                              |
 //! | ----- | -------------------------------------------------------- |
-//! | [Int] | the categories of the high-order arguments (Section 2.7) |
-//! | Int   | a concrete category                                      |
+//! | [`Int`] | the categories of the high-order arguments (Section 2.7) |
+//! | `Int`   | a concrete category                                      |
 //!
 //! ---
 //!
-//! ### CncCat
+//! ### `CncCat`
 //!
 //! This is the representation of a set of concrete categories which map to the
 //! same abstract category. Since all concrete categories generated from the
@@ -506,10 +508,10 @@
 //!
 //! | type     | description                                                   |
 //! | -------- | ------------------------------------------------------------- |
-//! | String   | the name of the corresponding (by $\psi_N$) abstract category |
-//! | Int      | the first concrete category                                   |
-//! | Int      | the last concrete category                                    |
-//! | [String] | a list of constituent names
+//! | `String`   | the name of the corresponding (by $\psi_N$) abstract category |
+//! | `Int`      | the first concrete category                                   |
+//! | `Int`      | the last concrete category                                    |
+//! | [`String`] | a list of constituent names
 
 use std::env;
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
@@ -772,7 +774,7 @@ impl PartialEq for Expr {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Expr::Abs(b1, c1, e1), Expr::Abs(b2, c2, e2)) => b1 == b2 && c1 == c2 && e1 == e2,
-            (Expr::App(e1a, e1b), Expr::App(e2a, e2b)) => e1a == e2a && e1b == e2b,
+            (Expr::App(e1_func, e1_arg), Expr::App(e2_func, e2_arg)) => e1_func == e2_func && e1_arg == e2_arg,
             (Expr::Fun(c1), Expr::Fun(c2)) => c1 == c2,
             (Expr::Str(s1), Expr::Str(s2)) => s1 == s2,
             (Expr::Int(i1), Expr::Int(i2)) => i1 == i2,
@@ -852,18 +854,22 @@ impl std::hash::Hash for Expr {
 pub mod cid {
     use super::CId;
 
+    #[must_use]
     pub fn mk_cid(s: &str) -> CId {
         CId(s.to_string())
     }
 
+    #[must_use]
     pub fn wild_cid() -> CId {
         CId("*".to_string())
     }
 
+    #[must_use]
     pub fn show_cid(cid: &CId) -> String {
         cid.0.clone()
     }
 
+    #[must_use]
     pub fn read_cid(s: &str) -> Option<CId> {
         if s.is_empty() {
             None
@@ -876,18 +882,22 @@ pub mod cid {
 pub mod language {
     use super::{CId, Language, Pgf, Literal};
 
+    #[must_use]
     pub fn show_language(lang: &Language) -> String {
         super::cid::show_cid(&lang.0)
     }
 
+    #[must_use]
     pub fn read_language(s: &str) -> Option<Language> {
         super::cid::read_cid(s).map(Language)
     }
 
+    #[must_use]
     pub fn languages(pgf: &Pgf) -> Vec<Language> {
         pgf.concretes.keys().cloned().collect()
     }
 
+    #[must_use]
     pub fn language_code(pgf: &Pgf, lang: &Language) -> Option<String> {
         pgf.concretes.get(lang).and_then(|cnc| {
             cnc.cflags.get(&CId("language".to_string())).and_then(|lit| {
@@ -899,6 +909,7 @@ pub mod language {
         })
     }
 
+    #[must_use]
     pub fn abstract_name(pgf: &Pgf) -> Language {
         Language(pgf.absname.clone())
     }
@@ -907,6 +918,7 @@ pub mod language {
 pub mod types {
     use super::{CId, Hypo, Type, Pgf};
 
+    #[must_use]
     pub fn mk_type(hypos: Vec<Hypo>, cat: CId, exprs: Vec<super::Expr>) -> Type {
         Type {
             hypos,
@@ -915,10 +927,12 @@ pub mod types {
         }
     }
 
+    #[must_use]
     pub fn mk_hypo(binding: super::Binding, ty: Type) -> Hypo {
         Hypo { binding, ty }
     }
 
+    #[must_use]
     pub fn start_cat(pgf: &Pgf) -> Type {
         Type {
             hypos: vec![],
@@ -963,6 +977,11 @@ pub mod parse {
         ParseFail,
     }
 
+    /// Initialize a parsing state for the given grammar, language, and type.
+    /// 
+    /// # Errors
+    /// Returns `PgfError::UnknownLanguage` if the language is not found in the PGF.
+    /// Returns `PgfError::ParseError` if the category is not found in the concrete syntax.
     pub fn init_state(pgf: &Pgf, lang: &Language, typ: &Type) -> Result<ParseState, PgfError> {
         let cnc = pgf.concretes.get(lang).ok_or_else(|| PgfError::UnknownLanguage(cid::show_cid(&lang.0)))?;
         let cat_id = cnc.cnccats.get(&typ.category)
@@ -974,7 +993,7 @@ pub mod parse {
                 if let Production::Apply { fid, args: _ } = prod {
                     let item = Item {
                         fid: *fid,
-                        seqid: cnc.cncfuns.get(*fid as usize).map(|f| f.lins.get(0).copied().unwrap_or(0)).unwrap_or(0),
+                        seqid: cnc.cncfuns.get(usize::try_from(*fid).map_err(|_| PgfError::DeserializeError { offset: 0, message: "Function ID cannot be negative".to_string() })?).map_or(0, |f| f.lins.first().copied().unwrap_or(0)),
                         dot: 0,
                         args: vec![],
                         tree: None,
@@ -994,7 +1013,11 @@ pub mod parse {
         })
     }
 
-    pub fn next_state(state: &mut ParseState, input: ParseInput) -> Result<(), PgfError> {
+    /// Advance the parsing state with the next input token.
+    /// 
+    /// # Errors
+    /// Returns `PgfError::ParseError` if the language is not found or parsing fails.
+    pub fn next_state(state: &mut ParseState, input: &ParseInput) -> Result<(), PgfError> {
         state.tokens.push(input.token.clone());
         let cnc = state.pgf.concretes.get(&state.lang)
             .ok_or_else(|| PgfError::ParseError("Language not found".to_string()))?;
@@ -1002,9 +1025,9 @@ pub mod parse {
         let mut new_active = HashMap::new();
         let mut new_passive = state.passive_items.clone();
 
-        for (cat_id, items) in state.active_items.iter() {
+        for (cat_id, items) in &state.active_items {
             for item in items {
-                if let Some(seq) = cnc.sequences.get(item.seqid as usize) {
+                if let Some(seq) = cnc.sequences.get(usize::try_from(item.seqid).map_err(|_| PgfError::DeserializeError { offset: 0, message: "Sequence ID cannot be negative".to_string() })?) {
                     if item.dot < seq.len() {
                         match &seq[item.dot] {
                             Symbol::SymKS(token) => {
@@ -1064,18 +1087,18 @@ pub mod parse {
                             }
                         }
                     } else {
-                        let tree = build_tree(&cnc.cncfuns[item.fid as usize], &item.args);
+                        let tree = build_tree(&cnc.cncfuns[usize::try_from(item.fid).map_err(|_| PgfError::DeserializeError { offset: 0, message: "Function ID cannot be negative".to_string() })?], &item.args);
                         let passive_item = Item {
                             tree: Some(tree),
                             ..item.clone()
                         };
-                        new_passive.entry(*cat_id).or_insert_with(Vec::new).push(passive_item);
+                        new_passive.entry(*cat_id).or_default().push(passive_item);
                     }
                 }
             }
         }
 
-        for (cat_id, prods) in cnc.productions.iter() {
+        for (cat_id, prods) in &cnc.productions {
             for prod in prods {
                 if let Production::Coerce { arg } = prod {
                     if let Some(passive) = new_passive.get(arg) {
@@ -1110,26 +1133,33 @@ pub mod parse {
         tree
     }
 
+    /// Get the parse output and bracketed string from the parsing state.
+    /// 
+    /// # Panics
+    /// Panics if the language is not found in the PGF concrete syntaxes.
+    #[must_use]
     pub fn get_parse_output(state: &ParseState, typ: &Type, depth: Option<i32>) -> (ParseOutput, BracketedString) {
         let max_depth = depth.unwrap_or(i32::MAX);
         let cnc = state.pgf.concretes.get(&state.lang).expect("Language not found");
-        let cat_id = cnc.cnccats.get(&typ.category).map(|cat| cat.start).unwrap_or(0);
+        let cat_id = cnc.cnccats.get(&typ.category).map_or(0, |cat| cat.start);
 
         let mut trees = vec![];
         if let Some(items) = state.passive_items.get(&cat_id) {
             for item in items {
                 if let Some(tree) = &item.tree {
-                    if item.dot == cnc.sequences.get(item.seqid as usize).map_or(0, |seq| seq.len()) {
-                        trees.push(tree.clone());
+                    if let Ok(seqid_usize) = usize::try_from(item.seqid) {
+                            if item.dot == cnc.sequences.get(seqid_usize).map_or(0, std::vec::Vec::len) {
+                                trees.push(tree.clone());
+                            }
+                        }
                     }
-                }
             }
         }
 
         let bracketed = if trees.is_empty() {
-            BracketedString::Leaf("".to_string())
+            BracketedString::Leaf(String::new())
         } else {
-            BracketedString::Branch(typ.category.clone(), trees.iter().map(|t| expr_to_bracketed(t)).collect())
+            BracketedString::Branch(typ.category.clone(), trees.iter().map(expr_to_bracketed).collect())
         };
 
         if trees.is_empty() {
@@ -1147,7 +1177,7 @@ pub mod parse {
                 children.push(expr_to_bracketed(e2));
                 BracketedString::Branch(cid::wild_cid(), children)
             }
-            _ => BracketedString::Leaf("".to_string()),
+            _ => BracketedString::Leaf(String::new()),
         }
     }
 }
@@ -1158,14 +1188,27 @@ pub enum BracketedString {
     Branch(CId, Vec<BracketedString>),
 }
 
+/// Read a PGF file from the given path.
+/// 
+/// # Errors
+/// Returns `PgfError::IoError` if the file cannot be read.
+/// Returns other `PgfError` variants if parsing fails.
 pub fn read_pgf(path: &str) -> Result<Pgf, PgfError> {
     let mut file = File::open(path)?;
     let mut bytes = Vec::new();
     file.read_to_end(&mut bytes)?;
-    parse_pgf(Bytes::from(bytes))
+    parse_pgf(&Bytes::from(bytes))
 }
 
-pub fn parse_pgf(data: Bytes) -> Result<Pgf, PgfError> {
+/// Parses a PGF binary data structure from bytes.
+///
+/// # Errors
+///
+/// Returns [`PgfError::DeserializeError`] if:
+/// - The binary data is malformed or truncated
+/// - Version numbers cannot be read from the data
+/// - Any binary field parsing fails during deserialization
+pub fn parse_pgf(data: &Bytes) -> Result<Pgf, PgfError> {
     let mut cursor = Cursor::new(&data[..]);
     parse_pgf_binary(&mut cursor)
 }
@@ -1173,14 +1216,14 @@ pub fn parse_pgf(data: Bytes) -> Result<Pgf, PgfError> {
 fn parse_pgf_binary(cursor: &mut Cursor<&[u8]>) -> Result<Pgf, PgfError> {
     let offset = cursor.position();
     let major_version = cursor.read_i16::<BigEndian>()
-        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read major version: {}", e) })?;
+        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read major version: {e}") })?;
     let minor_version = cursor.read_i16::<BigEndian>()
-        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read minor version: {}", e) })?;
+        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read minor version: {e}") })?;
 
-    if major_version < 1 || major_version > 2 {
+    if !(1..=2).contains(&major_version) {
         return Err(PgfError::DeserializeError {
             offset,
-            message: format!("Unsupported PGF version: {}.{}", major_version, minor_version),
+            message: format!("Unsupported PGF version: {major_version}.{minor_version}"),
         });
     }
 
@@ -1210,7 +1253,7 @@ fn parse_pgf_binary(cursor: &mut Cursor<&[u8]>) -> Result<Pgf, PgfError> {
         })
         .unwrap_or_else(|| r#abstract.cats.keys().next().cloned().unwrap_or(cid::mk_cid("S")));
 
-    let absname = r#abstract.funs.keys().next().map_or(cid::mk_cid("Abstract"), |f| f.clone());
+    let absname = r#abstract.funs.keys().next().map_or(cid::mk_cid("Abstract"), std::clone::Clone::clone);
 
     Ok(Pgf {
         absname,
@@ -1223,14 +1266,14 @@ fn parse_pgf_binary(cursor: &mut Cursor<&[u8]>) -> Result<Pgf, PgfError> {
 /* fn parse_pgf_binary(cursor: &mut Cursor<&[u8]>) -> Result<Pgf, PgfError> {
     let offset = cursor.position();
     let major_version = cursor.read_i16::<BigEndian>()
-        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read major version: {}", e) })?;
+        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read major version: {e}") })?;
     let minor_version = cursor.read_i16::<BigEndian>()
-        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read minor version: {}", e) })?;
+        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read minor version: {e}") })?;
 
     if major_version < 1 || major_version > 2 {
         return Err(PgfError::DeserializeError {
             offset,
-            message: format!("Unsupported PGF version: {}.{}", major_version, minor_version),
+            message: format!("Unsupported PGF version: {major_version}.{minor_version}"),
         });
     }
 
@@ -1279,10 +1322,10 @@ fn read_int(cursor: &mut Cursor<&[u8]>) -> Result<i32, PgfError> {
         let byte = cursor.read_u8()
             .map_err(|e| PgfError::DeserializeError { 
                 offset, 
-                message: format!("Failed to read int byte at pos {} (file size: {} bytes): {}. File appears to be truncated.", offset, file_size, e) 
+                message: format!("Failed to read int byte at pos {offset} (file size: {file_size} bytes): {e}. File appears to be truncated.") 
             })?;
         bytes_read.push(byte);
-        let val = (byte & 0x7F) as u32;
+        let val = u32::from(byte & 0x7F);
         result |= val << shift;
         shift += 7;
         if byte & 0x80 == 0 {
@@ -1291,7 +1334,7 @@ fn read_int(cursor: &mut Cursor<&[u8]>) -> Result<i32, PgfError> {
         if shift >= 32 {
             return Err(PgfError::DeserializeError {
                 offset,
-                message: format!("Integer overflow reading at pos {}, bytes: {:?}", offset, bytes_read)
+                message: format!("Integer overflow reading at pos {offset}, bytes: {bytes_read:?}")
             });
         }
     }
@@ -1300,52 +1343,57 @@ fn read_int(cursor: &mut Cursor<&[u8]>) -> Result<i32, PgfError> {
     // Don't treat it as termination marker for now
     
     // Check if this looks like invalid data
+    #[allow(clippy::unreadable_literal)]
     if result > 0x7FFFFFFF {  // This would be negative when cast to i32
         // This might be invalid data
         return Err(PgfError::DeserializeError {
             offset,
-            message: format!("Parsing boundary reached at pos {} - large unsigned value {} from bytes {:?} suggests end of structure", offset, result, bytes_read)
+            message: format!("Parsing boundary reached at pos {offset} - large unsigned value {result} from bytes {bytes_read:?} suggests end of structure")
         });
     }
     
-    Ok(result as i32)
+    i32::try_from(result).map_err(|_| PgfError::DeserializeError {
+        offset,
+        message: format!("Integer value {result} too large for i32")
+    })
 }
 
 fn read_literal(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Literal, PgfError> {
     let offset = cursor.position();
     let tag = cursor.read_u8()
-        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read literal tag: {}", e) })?;
+        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read literal tag: {e}") })?;
     match tag {
         0 => Ok(Literal::Str(read_string(cursor, is_pgf_2_1)?.0)),
         1 => Ok(Literal::Int(read_int(cursor)?)),
         2 => Ok(Literal::Flt(cursor.read_f64::<BigEndian>()
-            .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read float: {}", e) })?)),
-        _ => Err(PgfError::DeserializeError { offset, message: format!("Unknown literal tag: {}", tag) }),
+            .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read float: {e}") })?)),
+        _ => Err(PgfError::DeserializeError { offset, message: format!("Unknown literal tag: {tag}") }),
     }
 }
 
 fn read_string(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<CId, PgfError> {
     let offset = cursor.position();
-    let len = read_int(cursor)? as usize;
+    let len = usize::try_from(read_int(cursor)?).map_err(|_| PgfError::DeserializeError { offset, message: "String length cannot be negative".to_string() })?;
     let result = read_string_with_length(cursor, len, is_pgf_2_1)?;
     Ok(CId(result))
 }
 
 fn read_string_with_length(cursor: &mut Cursor<&[u8]>, len: usize, is_pgf_2_1: bool) -> Result<String, PgfError> {
+    const MAX_STRING_LEN: usize = 200; // Temporarily increased to debug structural issues
+    
     let start_pos = cursor.position();
     debug_println!("DEBUG: Reading string with length {} at pos {}", len, start_pos);
 
     // Validate string length - PGF strings are typically short identifiers
-    const MAX_STRING_LEN: usize = 200; // Temporarily increased to debug structural issues
     
     // Special handling for extreme values that indicate structural issues
-    if len == usize::MAX || len > 1000000 {
+    if len == usize::MAX || len > 1_000_000 {
         debug_println!("DEBUG: Extreme string length {} at pos {} - likely EOF or structural boundary", len, start_pos);
         debug_println!("DEBUG: Reached parsing boundary - likely completed main structure");
         return Err(PgfError::DeserializeError {
             offset: start_pos,
-            message: format!("Parsing boundary reached at pos {} ({}% complete) - likely completed main PGF structure", 
-                start_pos, (start_pos * 100) / cursor.get_ref().len() as u64),
+            message: format!("Parsing boundary reached at pos {start_pos} ({}% complete) - likely completed main PGF structure", 
+                (start_pos * 100) / u64::try_from(cursor.get_ref().len()).unwrap_or(1)),
         });
     }
     
@@ -1353,7 +1401,7 @@ fn read_string_with_length(cursor: &mut Cursor<&[u8]>, len: usize, is_pgf_2_1: b
         debug_println!("DEBUG: Large string length {} at pos {} - treating as parsing boundary", len, start_pos);
         return Err(PgfError::DeserializeError {
             offset: start_pos,
-            message: format!("String length {} at pos {} exceeds maximum ({}), likely reached parsing boundary", len, start_pos, MAX_STRING_LEN),
+            message: format!("String length {len} at pos {start_pos} exceeds maximum ({MAX_STRING_LEN}), likely reached parsing boundary"),
         });
     }
     
@@ -1362,7 +1410,7 @@ fn read_string_with_length(cursor: &mut Cursor<&[u8]>, len: usize, is_pgf_2_1: b
     cursor.read_exact(&mut buf)
         .map_err(|e| PgfError::DeserializeError { 
             offset: start_pos, 
-            message: format!("Failed to read string: {}", e) 
+            message: format!("Failed to read string: {e}") 
         })?;
     // Another debug print related to offset 180 and UTF-8. 
     // debug_println!("Offset {}: Read bytes = {:?}", offset, buf);
@@ -1370,7 +1418,7 @@ fn read_string_with_length(cursor: &mut Cursor<&[u8]>, len: usize, is_pgf_2_1: b
     if buf.len() > 4 && buf.starts_with(&[253, 255, 255, 255]) {
         return Err(PgfError::DeserializeError {
             offset: start_pos,
-            message: format!("String length {} at pos {} looks like a float, possible misalignment", len, start_pos),
+            message: format!("String length {len} at pos {start_pos} looks like a float, possible misalignment"),
         });
     }
 
@@ -1403,9 +1451,10 @@ fn read_string_with_length(cursor: &mut Cursor<&[u8]>, len: usize, is_pgf_2_1: b
 }
 
 fn read_string_fallback(cursor: &mut Cursor<&[u8]>, start_pos: u64, is_pgf_2_1: bool, tag: u8) -> Result<String, PgfError> {
+    const MAX_STRING_LEN: usize = 100; // Increased to handle longer strings like "ConfirmFlight"
+    
     debug_println!("DEBUG: Fallback reading string at pos {} for tag {}", start_pos, tag);
     let mut bytes = Vec::new();
-    const MAX_STRING_LEN: usize = 100; // Increased to handle longer strings like "ConfirmFlight"
     let mut len = 0;
 
     // Read until a valid tag (0–10), EOF, or max length
@@ -1451,7 +1500,7 @@ fn read_string_fallback(cursor: &mut Cursor<&[u8]>, start_pos: u64, is_pgf_2_1: 
                 if binary_bytes > bytes.len() / 4 || bytes.contains(&253) || bytes.contains(&254) {
                     debug_println!("DEBUG: Symbol fallback treating as binary data - {} high bytes out of {}", binary_bytes, bytes.len());
                     // Create a safe representation for binary data
-                    format!("binary_symbol_tag_{}_len_{}", tag, bytes.len())
+                    format!("binary_symbol_tag_{tag}_len_{}", bytes.len())
                 } else {
                     // Try Latin-1 fallback for text-like data
                     debug_println!("DEBUG: Symbol fallback trying Latin-1");
@@ -1465,7 +1514,7 @@ fn read_string_fallback(cursor: &mut Cursor<&[u8]>, start_pos: u64, is_pgf_2_1: 
     let has_only_safe_chars = string.chars().all(|c| {
         !c.is_ascii_control() || c.is_whitespace() || 
         // Allow specific control characters that might be part of PGF structure
-        (c as u32) == 0x18  // Allow the specific control character we're seeing
+        u32::from(c) == 0x18  // Allow the specific control character we're seeing
     });
     
     if has_only_safe_chars {
@@ -1475,18 +1524,18 @@ fn read_string_fallback(cursor: &mut Cursor<&[u8]>, start_pos: u64, is_pgf_2_1: 
         cursor.set_position(original_pos);
         Err(PgfError::DeserializeError {
             offset: start_pos,
-            message: format!("Invalid string content '{}' in fallback at pos {}", string, start_pos),
+            message: format!("Invalid string content '{string}' in fallback at pos {start_pos}"),
         })
     }
 }
 /* fn read_string(cursor: &mut Cursor<&[u8]>) -> Result<CId, PgfError> {
     let offset = cursor.position();
-    let len = read_int(cursor)? as usize;
+    let len = usize::try_from(read_int(cursor)?).map_err(|_| PgfError::DeserializeError { offset, message: "String length cannot be negative".to_string() })?;
     let mut buf = vec![0u8; len];
     cursor.read_exact(&mut buf)
-        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read string: {}", e) })?;
+        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read string: {e}") })?;
     let s = String::from_utf8(buf)
-        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Invalid UTF-8 string: {}", e) })?;
+        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Invalid UTF-8 string: {e}") })?;
     Ok(cid::mk_cid(&s))
 } */
 
@@ -1505,7 +1554,7 @@ fn read_abstract(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Abstrac
         let ty = read_type(cursor, 0, is_pgf_2_1)?;
         let arity = read_int(cursor)?;
         let tag = cursor.read_u8()
-            .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read function tag: {}", e) })?;
+            .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read function tag: {e}") })?;
         let is_constructor = tag == 0;
         let equations = if tag == 1 {
             Some(read_list(cursor, |c| read_equation(c, is_pgf_2_1))?)
@@ -1513,7 +1562,7 @@ fn read_abstract(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Abstrac
             None
         };
         let prob = cursor.read_f64::<BigEndian>()
-            .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read probability: {}", e) })?;
+            .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read probability: {e}") })?;
 
         funs.insert(fun_name.clone(), Function {
             ty: ty.clone(),
@@ -1575,7 +1624,7 @@ fn read_hypo(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Hypo, PgfEr
 fn read_binding(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Binding, PgfError> {
     let offset = cursor.position();
     let tag = cursor.read_u8()
-        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read binding tag: {}", e) })?;
+        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read binding tag: {e}") })?;
     let name = read_string(cursor, is_pgf_2_1)?;
     match tag {
         0 => Ok(Binding::Explicit(cid::show_cid(&name))),
@@ -1599,7 +1648,7 @@ fn read_expr(cursor: &mut Cursor<&[u8]>, depth: u32, is_pgf_2_1: bool) -> Result
     }
     let offset = cursor.position();
     let tag = cursor.read_u8()
-        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read expr tag: {}", e) })?;
+        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read expr tag: {e}") })?;
     match tag {
         0 => {
             let binding = read_binding(cursor, is_pgf_2_1)?;
@@ -1631,12 +1680,12 @@ fn read_expr(cursor: &mut Cursor<&[u8]>, depth: u32, is_pgf_2_1: bool) -> Result
             if tag > 127 {
                 debug_println!("DEBUG: High expr tag {} suggests binary data - treating as Meta fallback", tag);
                 // Try to read as Meta (integer expression)
-                let meta_value = tag as i32; // Use the tag value itself as meta
+                let meta_value = i32::from(tag); // Use the tag value itself as meta
                 Ok(Expr::Meta(meta_value))
             } else {
                 // Lower unknown tags - try to parse as Fun (string expression)
                 debug_println!("DEBUG: Low expr tag {} - treating as Fun fallback", tag);
-                let fun_name = format!("unknown_expr_tag_{}", tag);
+                let fun_name = format!("unknown_expr_tag_{tag}");
                 Ok(Expr::Fun(CId(fun_name)))
             }
         }
@@ -1652,7 +1701,7 @@ fn read_equation(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Equatio
 fn read_pattern(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Pattern, PgfError> {
     let offset = cursor.position();
     let tag = cursor.read_u8()
-        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read pattern tag: {}", e) })?;
+        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read pattern tag: {e}") })?;
     match tag {
         0 => {
             let constr = read_string(cursor, is_pgf_2_1)?;
@@ -1669,7 +1718,7 @@ fn read_pattern(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Pattern,
         4 => Ok(Pattern::PLit(read_literal(cursor, is_pgf_2_1)?)),
         5 => Ok(Pattern::PImplicit(read_list(cursor, |c| read_pattern(c, is_pgf_2_1))?)),
         6 => Ok(Pattern::PInaccessible(read_expr(cursor, 0, is_pgf_2_1)?)),
-        _ => Err(PgfError::DeserializeError { offset, message: format!("Unknown pattern tag: {}", tag) }),
+        _ => Err(PgfError::DeserializeError { offset, message: format!("Unknown pattern tag: {tag}") }),
     }
 }
 
@@ -1690,21 +1739,21 @@ fn read_concrete(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Concret
     let printnames = read_list(cursor, |c| read_printname(c, is_pgf_2_1))?;
     debug_println!("DEBUG: Read {} printnames at pos {}", printnames.len(), cursor.position());
     debug_println!("DEBUG: About to read sequences, next few bytes: {:?}", 
-        cursor.get_ref().get(cursor.position() as usize..cursor.position() as usize + 10).unwrap_or(&[]));
+        cursor.get_ref().get(usize::try_from(cursor.position()).unwrap_or(0)..usize::try_from(cursor.position()).unwrap_or(0) + 10).unwrap_or(&[]));
     // Read sequences manually instead of using read_list to properly handle symbol tags
-    let sequences_len = read_int(cursor)? as usize;
+    let sequences_len = usize::try_from(read_int(cursor)?).map_err(|_| PgfError::DeserializeError { offset: cursor.position(), message: "Sequences length cannot be negative".to_string() })?;
     debug_println!("DEBUG: sequences_len={} at pos {}", sequences_len, cursor.position());
     let mut sequences = Vec::with_capacity(sequences_len);
     for i in 0..sequences_len {
         let seq_pos = cursor.position();
-        let syms_len = read_int(cursor)? as usize;
+        let syms_len = usize::try_from(read_int(cursor)?).map_err(|_| PgfError::DeserializeError { offset: seq_pos, message: "Symbols length cannot be negative".to_string() })?;
         debug_println!("DEBUG: Sequence {} at pos {}, syms_len: {}", i, seq_pos, syms_len);
         
         
         // Peek at next bytes for debugging
         let next_bytes = cursor
             .get_ref()
-            .get(cursor.position() as usize..(cursor.position() as usize + 10).min(cursor.get_ref().len()))
+            .get(usize::try_from(cursor.position()).unwrap_or(0)..(usize::try_from(cursor.position()).unwrap_or(0) + 10).min(cursor.get_ref().len()))
             .unwrap_or(&[]);
         debug_println!("DEBUG: Next bytes after syms_len: {:?}", next_bytes);
         
@@ -1712,7 +1761,7 @@ fn read_concrete(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Concret
         
         for j in 0..syms_len {
             let sym_pos = cursor.position();
-            let next_byte = cursor.get_ref().get(cursor.position() as usize).copied();
+            let next_byte = cursor.get_ref().get(usize::try_from(cursor.position()).unwrap_or(0)).copied();
             debug_println!("DEBUG: About to read symbol {} at pos {}, next byte: {:?}", j, sym_pos, next_byte);
             
             
@@ -1745,7 +1794,7 @@ fn read_concrete(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Concret
         Err(e) => return Err(e),
     };
     debug_println!("DEBUG: Read {} lindefs at pos {}", lindefs.len(), cursor.position());
-    let linrefs = match read_list(cursor, read_linref) {
+    let lin_refs = match read_list(cursor, read_linref) {
         Ok(l) => l,
         Err(PgfError::DeserializeError { message, .. }) if message.contains("Parsing boundary reached") => {
             debug_println!("DEBUG: Reached end of structure reading linrefs - using empty list");
@@ -1753,7 +1802,7 @@ fn read_concrete(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Concret
         }
         Err(e) => return Err(e),
     };
-    debug_println!("DEBUG: Read {} linrefs at pos {}", linrefs.len(), cursor.position());
+    debug_println!("DEBUG: Read {} linrefs at pos {}", lin_refs.len(), cursor.position());
     let cnccats = match read_list(cursor, |c| read_cnccat(c, is_pgf_2_1)) {
         Ok(l) => l.into_iter().map(|cc| (cc.name.clone(), cc)).collect(),
         Err(PgfError::DeserializeError { message, .. }) if message.contains("failed to fill whole buffer") || message.contains("Parsing boundary reached") => {
@@ -1780,7 +1829,7 @@ fn read_concrete(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Concret
         cnccats,
         printnames,
         lindefs,
-        linrefs,
+        linrefs: lin_refs,
         ccats,
         total_cats,
     })
@@ -1824,7 +1873,7 @@ struct ProductionSet {
 fn read_production(cursor: &mut Cursor<&[u8]>) -> Result<Production, PgfError> {
     let offset = cursor.position();
     let tag = cursor.read_u8()
-        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read production tag: {}", e) })?;
+        .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read production tag: {e}") })?;
     debug_println!("DEBUG: Reading production with tag {} at pos {}", tag, offset);
     match tag {
         0 => {
@@ -1833,8 +1882,8 @@ fn read_production(cursor: &mut Cursor<&[u8]>) -> Result<Production, PgfError> {
             Ok(Production::Apply { fid, args })
         }
         1 => {
-            let arg = cursor.read_i8()
-                .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read coerce arg: {}", e) })? as i32;
+            let arg = i32::from(cursor.read_i8()
+                .map_err(|e| PgfError::DeserializeError { offset, message: format!("Failed to read coerce arg: {e}") })?);
             Ok(Production::Coerce { arg })
         }
         2 => {
@@ -1868,31 +1917,25 @@ fn read_production(cursor: &mut Cursor<&[u8]>) -> Result<Production, PgfError> {
             // Based on the pattern fd ff ff ff 7f fd ff ff ff 7f, this looks like
             // two 32-bit signed integers: -3 (0xFFFFFFFD) followed by something
             // Let's try to consume 8 bytes (2 x 4-byte integers)
-            match (cursor.read_i32::<byteorder::LittleEndian>(), cursor.read_i32::<byteorder::LittleEndian>()) {
-                (Ok(val1), Ok(val2)) => {
-                    debug_println!("DEBUG: Tag 4 consumed two ints: {} and {} at pos {}", val1, val2, current_pos);
-                    let expr = Expr::Meta(val1); // Use first value as meta
+            if let (Ok(val1), Ok(val2)) = (cursor.read_i32::<byteorder::LittleEndian>(), cursor.read_i32::<byteorder::LittleEndian>()) {
+                debug_println!("DEBUG: Tag 4 consumed two ints: {} and {} at pos {}", val1, val2, current_pos);
+                let expr = Expr::Meta(val1); // Use first value as meta
+                let tokens = Vec::new();
+                Ok(Production::Const { cid, expr, tokens })
+            } else {
+                // If that fails, try consuming 4 bytes
+                cursor.set_position(current_pos);
+                if let Ok(val) = cursor.read_i32::<byteorder::LittleEndian>() {
+                    debug_println!("DEBUG: Tag 4 consumed one int: {} at pos {}", val, current_pos);
+                    let expr = Expr::Meta(val);
                     let tokens = Vec::new();
                     Ok(Production::Const { cid, expr, tokens })
-                }
-                _ => {
-                    // If that fails, try consuming 4 bytes
-                    cursor.set_position(current_pos);
-                    match cursor.read_i32::<byteorder::LittleEndian>() {
-                        Ok(val) => {
-                            debug_println!("DEBUG: Tag 4 consumed one int: {} at pos {}", val, current_pos);
-                            let expr = Expr::Meta(val);
-                            let tokens = Vec::new();
-                            Ok(Production::Const { cid, expr, tokens })
-                        }
-                        Err(_) => {
-                            debug_println!("DEBUG: Tag 4 int reading failed, skipping 4 bytes");
-                            cursor.set_position(current_pos + 4); // Skip 4 bytes
-                            let expr = Expr::Fun(CId(format!("tag_4_production_{}", cid.0)));
-                            let tokens = Vec::new();
-                            Ok(Production::Const { cid, expr, tokens })
-                        }
-                    }
+                } else {
+                    debug_println!("DEBUG: Tag 4 int reading failed, skipping 4 bytes");
+                    cursor.set_position(current_pos + 4); // Skip 4 bytes
+                    let expr = Expr::Fun(CId(format!("tag_4_production_{}", cid.0)));
+                    let tokens = Vec::new();
+                    Ok(Production::Const { cid, expr, tokens })
                 }
             }
         }
@@ -1931,13 +1974,13 @@ fn read_cnccat(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<CncCat, P
 fn read_symbol(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Symbol, PgfError> {
     let start_pos = cursor.position();
     let tag = cursor.read_u8()
-        .map_err(|e| PgfError::DeserializeError { offset: start_pos, message: format!("Failed to read symbol tag: {}", e) })?;
+        .map_err(|e| PgfError::DeserializeError { offset: start_pos, message: format!("Failed to read symbol tag: {e}") })?;
     debug_println!("DEBUG: Reading symbol at pos {}, tag: {}", start_pos, tag);
 
     // Peek at the next few bytes for debugging
     let next_bytes = cursor
         .get_ref()
-        .get(cursor.position() as usize..(cursor.position() as usize + 10).min(cursor.get_ref().len()))
+        .get(usize::try_from(cursor.position()).unwrap_or(0)..(usize::try_from(cursor.position()).unwrap_or(0) + 10).min(cursor.get_ref().len()))
         .unwrap_or(&[]);
     debug_println!("DEBUG: Next bytes after tag {}: {:?}", tag, next_bytes);
 
@@ -1964,8 +2007,8 @@ fn read_symbol(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Symbol, P
             // Tag 3: SymKS in PGF 2.1 - try length-prefixed string first, then fallback
             let len_pos = cursor.position();
             let token = match read_int(cursor) {
-                Ok(len) if len as usize <= 100 => {
-                    match read_string_with_length(cursor, len as usize, is_pgf_2_1) {
+                Ok(len) if len >= 0 && usize::try_from(len).unwrap_or(0) <= 100 => {
+                    match read_string_with_length(cursor, usize::try_from(len).unwrap_or(0), is_pgf_2_1) {
                         Ok(s) if s.chars().all(|c| !c.is_ascii_control() || c.is_whitespace()) => {
                             debug_println!("DEBUG: PGF_SYMBOL_KS: length-prefixed token='{}' at pos {}", s, start_pos);
                             s
@@ -2017,10 +2060,10 @@ fn read_symbol(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Symbol, P
         }
         24 => {
             debug_println!("DEBUG: Detected end marker byte 24 at pos {} - treating as structure boundary", start_pos);
-            return Err(PgfError::DeserializeError {
+            Err(PgfError::DeserializeError {
                 offset: start_pos,
                 message: "Reached structure boundary marker".to_string(),
-            });
+            })
         }
         _ => {
             debug_println!("DEBUG: Invalid symbol tag {} at pos {}, attempting fallback as SymKS", tag, start_pos);
@@ -2050,7 +2093,7 @@ where
         Ok(l) => l,
         Err(PgfError::DeserializeError { message, .. }) if message.contains("Parsing boundary reached") || message.contains("failed to fill whole buffer") => {
             // Boundary reached or EOF - this might be normal end of structure
-            eprintln!("DEBUG: Parsing boundary/EOF at pos {} - treating as end of structure", offset);
+            eprintln!("DEBUG: Parsing boundary/EOF at pos {offset} - treating as end of structure");
             return Ok(Vec::new());
         }
         Err(e) => return Err(e),
@@ -2060,24 +2103,28 @@ where
     if len < 0 {
         return Err(PgfError::DeserializeError {
             offset,
-            message: format!("Negative list length {} at pos {}", len, offset)
+            message: format!("Negative list length {len} at pos {offset}")
         });
     }
     
     if len > 1_000_000 {  // Reasonable upper limit
         return Err(PgfError::DeserializeError {
             offset,
-            message: format!("List length {} too large at pos {} - likely parsing error", len, offset)
+            message: format!("List length {len} too large at pos {offset} - likely parsing error")
         });
     }
     
-    let mut result = Vec::with_capacity(len as usize);
+    let mut result = Vec::with_capacity(usize::try_from(len).unwrap_or(0));
     for _ in 0..len {
         result.push(f(cursor)?);
     }
     Ok(result)
 }
 
+/// Convert a PGF structure to JSON string representation.
+/// 
+/// # Errors
+/// Returns `PgfError::SerializeError` if JSON serialization fails.
 pub fn pgf_to_json(pgf: &Pgf) -> Result<String, PgfError> {
     let json = json!({
         "abstract": abstract_to_json(&pgf.absname, &pgf.startcat, &pgf.r#abstract),
@@ -2227,12 +2274,23 @@ fn symbol_to_json(sym: &Symbol) -> JsonValue {
             (ty.hypos.iter().map(|h| h.ty.category.clone()).collect(), ty.category.clone())
         }
         
+        /// Parses input text into abstract syntax expressions using the given grammar and language.
+        ///
+        /// # Errors
+        ///
+        /// Returns [`PgfError::ParseError`] if:
+        /// - The input cannot be parsed according to the grammar rules
+        /// - Parsing state initialization fails
+        /// - Token processing fails during parsing
+        /// - The final parse result indicates failure
+        /// 
+        /// Returns [`PgfError::UnknownLanguage`] if the specified language is not found in the grammar.
         pub fn parse(pgf: &Pgf, lang: &Language, typ: &Type, input: &str) -> Result<Vec<Expr>, PgfError> {
-    let tokens = input.split_whitespace().map(|s| s.to_string()).collect::<Vec<_>>();
+    let tokens = input.split_whitespace().map(std::string::ToString::to_string).collect::<Vec<_>>();
     let mut state = parse::init_state(pgf, lang, typ)?;
     
     for token in tokens {
-        parse::next_state(&mut state, parse::ParseInput { token })?;
+        parse::next_state(&mut state, &parse::ParseInput { token })?;
     }
     
     let (output, _bracketed) = parse::get_parse_output(&state, typ, Some(4));
@@ -2242,6 +2300,16 @@ fn symbol_to_json(sym: &Symbol) -> JsonValue {
     }
 }
 
+/// Type checks an expression against an expected type.
+///
+/// # Errors
+///
+/// Returns [`PgfError::TypeCheckError`] if:
+/// - The function referenced in the expression is not found in the abstract syntax
+/// - There is a type mismatch between the expression's actual type and the expected type
+/// - Invalid function application (e.g., applying to a function with no arguments)
+/// - The expression type is not supported for type checking
+/// - Recursive type checking of sub-expressions fails
 pub fn check_expr(pgf: &Pgf, expr: &Expr, expected: &Type) -> Result<(Expr, Type), PgfError> {
     match expr {
         Expr::Fun(cid) => {
@@ -2276,6 +2344,16 @@ pub fn check_expr(pgf: &Pgf, expr: &Expr, expected: &Type) -> Result<(Expr, Type
 }
 }
 
+/// Linearizes an abstract syntax expression into a string using the specified language.
+///
+/// # Errors
+///
+/// Returns [`PgfError::UnknownLanguage`] if the specified language is not found in the grammar.
+///
+/// Returns [`PgfError::ParseError`] if:
+/// - The function is not found in the concrete syntax for the language
+/// - The expression type is not supported for linearization
+/// - Recursive linearization of sub-expressions fails
 pub fn linearize(pgf: &Pgf, lang: &Language, expr: &Expr) -> Result<String, PgfError> {
     let cnc = pgf.concretes.get(lang).ok_or_else(|| PgfError::UnknownLanguage(cid::show_cid(&lang.0)))?;
     match expr {
@@ -2283,7 +2361,7 @@ pub fn linearize(pgf: &Pgf, lang: &Language, expr: &Expr) -> Result<String, PgfE
             let cnc_fun = cnc.cncfuns.iter().find(|f| f.name == *cid);
             if let Some(fun) = cnc_fun {
                 let seq = fun.lins.iter()
-                .filter_map(|&i| cnc.sequences.get(i as usize))
+                .filter_map(|&i| cnc.sequences.get(usize::try_from(i).ok()?))
                 .flat_map(|seq| seq.iter().filter_map(|sym| match sym {
                     Symbol::SymKS(s) => Some(s.clone()),
                     Symbol::SymKP(tokens, alts) => Some(tokens.first().cloned().unwrap_or_default()),
@@ -2298,24 +2376,28 @@ pub fn linearize(pgf: &Pgf, lang: &Language, expr: &Expr) -> Result<String, PgfE
     Expr::App(e1, e2) => {
         let s1 = linearize(pgf, lang, e1)?;
         let s2 = linearize(pgf, lang, e2)?;
-        Ok(format!("{} {}", s1, s2))
+        Ok(format!("{s1} {s2}"))
     }
     _ => Err(PgfError::ParseError("Unsupported expression for linearization".to_string())),
 }
 }
 
+#[must_use]
 pub fn categories(pgf: &Pgf) -> Vec<CId> {
     pgf.r#abstract.cats.keys().cloned().collect()
 }
 
+#[must_use]
 pub fn category_context(pgf: &Pgf, cat: &CId) -> Option<Vec<Hypo>> {
     pgf.r#abstract.cats.get(cat).map(|c| c.hypos.clone())
 }
 
+#[must_use]
 pub fn functions(pgf: &Pgf) -> Vec<CId> {
     pgf.r#abstract.funs.keys().cloned().collect()
 }
 
+#[must_use]
 pub fn functions_by_cat(pgf: &Pgf, cat: &CId) -> Vec<CId> {
     pgf.r#abstract
     .cats
@@ -2324,6 +2406,7 @@ pub fn functions_by_cat(pgf: &Pgf, cat: &CId) -> Vec<CId> {
     .unwrap_or_default()
 }
 
+#[must_use]
 pub fn function_type(pgf: &Pgf, fun: &CId) -> Option<Type> {
     pgf.r#abstract.funs.get(fun).map(|f| f.ty.clone())
 }
@@ -2413,7 +2496,7 @@ mod tests {
         let lang = language::read_language("FoodEng").expect("Invalid language");
         let typ = types::start_cat(&pgf);
         let mut state = parse::init_state(&pgf, &lang, &typ).expect("Failed to initialize parse state");
-        parse::next_state(&mut state, parse::ParseInput { token: "is".to_string() }).expect("Failed to parse token");
+        parse::next_state(&mut state, &parse::ParseInput { token: "is".to_string() }).expect("Failed to parse token");
         let (output, _bracketed) = parse::get_parse_output(&state, &typ, Some(4));
         match output {
             parse::ParseOutput::ParseOk(_) => debug_println!("Parse succeeded"),
@@ -2424,7 +2507,7 @@ mod tests {
     #[test]
     fn test_invalid_pgf() {
         let invalid_data = Bytes::from(vec![0, 1, 2, 3]);
-        let result = parse_pgf(invalid_data);
+        let result = parse_pgf(&invalid_data);
         assert!(matches!(result, Err(PgfError::DeserializeError { .. })), "Expected deserialization error");
     }
 
@@ -2542,7 +2625,7 @@ mod tests {
                 }
                 Err(e) => {
                     debug_println!("Movies PGF parsing error: {:?}", e);
-                    panic!("Failed to read Movies PGF file: {:?}", e);
+                    panic!("Failed to read Movies PGF file: {e:?}");
                 }
             }
         }
@@ -2554,7 +2637,7 @@ mod tests {
                 Ok(pgf) => debug_println!("Successfully parsed HelloFromGF-Core/Hello PGF"),
                 Err(e) => {
                     debug_println!("HelloFromGF-Core/Hello PGF parsing error: {:?}", e);
-                    panic!("Failed to read HelloFromGF-Core/Hello PGF file: {:?}", e);
+                    panic!("Failed to read HelloFromGF-Core/Hello PGF file: {e:?}");
                 }
             }
         }
