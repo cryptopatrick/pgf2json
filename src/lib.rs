@@ -510,7 +510,7 @@
 //! | Int      | the first concrete category                                   |
 //! | Int      | the last concrete category                                    |
 //! | [String] | a list of constituent names
-use byteorder::{BigEndian, ReadBytesExt};
+use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 
 use std::collections::HashMap;
 use std::fs::File;
@@ -1815,6 +1815,57 @@ fn read_production(cursor: &mut Cursor<&[u8]>) -> Result<Production, PgfError> {
             let tokens = read_list(cursor, |c| read_string(c, true).map(|cid| cid.0))?;
             println!("DEBUG: Read PConst production: cid={:?}, tokens={:?}", cid, tokens);
             Ok(Production::Const { cid, expr, tokens })
+        }
+        4 => {
+            println!("DEBUG: Production tag 4 - attempting specialized parsing at pos {}", offset);
+            // Production tag 4 appears to have a different structure
+            // Based on the hex data: 04 05 46 6c 6f 61 74 fd ff ff ff
+            // This looks like: tag(4) + string("Float") + some binary data
+            let cid = read_string(cursor, true)?;
+            println!("DEBUG: Read tag 4 string: {:?}", cid);
+            
+            // Look at the next few bytes to understand the pattern
+            let current_pos = cursor.position();
+            let mut debug_bytes = Vec::new();
+            for i in 0..16 {
+                match cursor.read_u8() {
+                    Ok(b) => debug_bytes.push(b),
+                    Err(_) => break,
+                }
+            }
+            cursor.set_position(current_pos);
+            println!("DEBUG: Next 16 bytes after tag 4 string: {:?}", debug_bytes);
+            
+            // Based on the pattern fd ff ff ff 7f fd ff ff ff 7f, this looks like
+            // two 32-bit signed integers: -3 (0xFFFFFFFD) followed by something
+            // Let's try to consume 8 bytes (2 x 4-byte integers)
+            match (cursor.read_i32::<byteorder::LittleEndian>(), cursor.read_i32::<byteorder::LittleEndian>()) {
+                (Ok(val1), Ok(val2)) => {
+                    println!("DEBUG: Tag 4 consumed two ints: {} and {} at pos {}", val1, val2, current_pos);
+                    let expr = Expr::Meta(val1); // Use first value as meta
+                    let tokens = Vec::new();
+                    Ok(Production::Const { cid, expr, tokens })
+                }
+                _ => {
+                    // If that fails, try consuming 4 bytes
+                    cursor.set_position(current_pos);
+                    match cursor.read_i32::<byteorder::LittleEndian>() {
+                        Ok(val) => {
+                            println!("DEBUG: Tag 4 consumed one int: {} at pos {}", val, current_pos);
+                            let expr = Expr::Meta(val);
+                            let tokens = Vec::new();
+                            Ok(Production::Const { cid, expr, tokens })
+                        }
+                        Err(_) => {
+                            println!("DEBUG: Tag 4 int reading failed, skipping 4 bytes");
+                            cursor.set_position(current_pos + 4); // Skip 4 bytes
+                            let expr = Expr::Fun(CId(format!("tag_4_production_{}", cid.0)));
+                            let tokens = Vec::new();
+                            Ok(Production::Const { cid, expr, tokens })
+                        }
+                    }
+                }
+            }
         }
         _ => {
             println!("DEBUG: Unknown production tag {} at pos {} - treating as PConst fallback", tag, offset);

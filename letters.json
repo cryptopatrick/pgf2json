@@ -1,23 +1,6 @@
 {
   "abstract": {
     "funs": {
-      "C": {
-        "args": [
-          "L",
-          "S"
-        ],
-        "arity": 0,
-        "cat": "S",
-        "is_constructor": false,
-        "prob": 0.5
-      },
-      "E": {
-        "args": [],
-        "arity": 0,
-        "cat": "S",
-        "is_constructor": false,
-        "prob": 0.5
-      },
       "a": {
         "args": [],
         "arity": 0,
@@ -201,8 +184,8 @@
         "prob": 0.038461538461538464
       }
     },
-    "name": "m",
-    "startcat": "S"
+    "name": "t",
+    "startcat": "L"
   },
   "concretes": {}
 }

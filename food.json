@@ -112,8 +112,8 @@
         "prob": 0.25
       }
     },
-    "name": "This",
-    "startcat": "Kind"
+    "name": "Italian",
+    "startcat": "Float"
   },
   "concretes": {}
 }
