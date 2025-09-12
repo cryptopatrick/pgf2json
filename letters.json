@@ -184,8 +184,8 @@
         "prob": 0.038461538461538464
       }
     },
-    "name": "t",
-    "startcat": "L"
+    "name": "i",
+    "startcat": "Int"
   },
   "concretes": {}
 }

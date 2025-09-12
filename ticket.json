@@ -27,7 +27,7 @@
       }
     },
     "name": "Paris",
-    "startcat": "Float"
+    "startcat": "Station"
   },
   "concretes": {}
 }
