@@ -1,0 +1,33 @@
+{
+  "abstract": {
+    "funs": {
+      "Hamburg": {
+        "args": [],
+        "arity": 0,
+        "cat": "Station",
+        "is_constructor": false,
+        "prob": 0.5
+      },
+      "Paris": {
+        "args": [],
+        "arity": 0,
+        "cat": "Station",
+        "is_constructor": false,
+        "prob": 0.5
+      },
+      "Ticket": {
+        "args": [
+          "Station",
+          "Station"
+        ],
+        "arity": 0,
+        "cat": "Request",
+        "is_constructor": false,
+        "prob": 1.0
+      }
+    },
+    "name": "Hamburg",
+    "startcat": "String"
+  },
+  "concretes": {}
+}

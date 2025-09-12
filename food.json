@@ -1,0 +1,119 @@
+{
+  "abstract": {
+    "funs": {
+      "Boring": {
+        "args": [],
+        "arity": 0,
+        "cat": "Quality",
+        "is_constructor": false,
+        "prob": 0.14285714285714285
+      },
+      "Cheese": {
+        "args": [],
+        "arity": 0,
+        "cat": "Kind",
+        "is_constructor": false,
+        "prob": 0.25
+      },
+      "Delicious": {
+        "args": [],
+        "arity": 0,
+        "cat": "Quality",
+        "is_constructor": false,
+        "prob": 0.14285714285714285
+      },
+      "Expensive": {
+        "args": [],
+        "arity": 0,
+        "cat": "Quality",
+        "is_constructor": false,
+        "prob": 0.14285714285714285
+      },
+      "Fish": {
+        "args": [],
+        "arity": 0,
+        "cat": "Kind",
+        "is_constructor": false,
+        "prob": 0.25
+      },
+      "Fresh": {
+        "args": [],
+        "arity": 0,
+        "cat": "Quality",
+        "is_constructor": false,
+        "prob": 0.14285714285714285
+      },
+      "Is": {
+        "args": [
+          "Item",
+          "Quality"
+        ],
+        "arity": 0,
+        "cat": "Phrase",
+        "is_constructor": false,
+        "prob": 1.0
+      },
+      "Italian": {
+        "args": [],
+        "arity": 0,
+        "cat": "Quality",
+        "is_constructor": false,
+        "prob": 0.14285714285714285
+      },
+      "QKind": {
+        "args": [
+          "Quality",
+          "Kind"
+        ],
+        "arity": 0,
+        "cat": "Kind",
+        "is_constructor": false,
+        "prob": 0.25
+      },
+      "That": {
+        "args": [
+          "Kind"
+        ],
+        "arity": 0,
+        "cat": "Item",
+        "is_constructor": false,
+        "prob": 0.5
+      },
+      "This": {
+        "args": [
+          "Kind"
+        ],
+        "arity": 0,
+        "cat": "Item",
+        "is_constructor": false,
+        "prob": 0.5
+      },
+      "Very": {
+        "args": [
+          "Quality"
+        ],
+        "arity": 0,
+        "cat": "Quality",
+        "is_constructor": false,
+        "prob": 0.14285714285714285
+      },
+      "Warm": {
+        "args": [],
+        "arity": 0,
+        "cat": "Quality",
+        "is_constructor": false,
+        "prob": 0.14285714285714285
+      },
+      "Wine": {
+        "args": [],
+        "arity": 0,
+        "cat": "Kind",
+        "is_constructor": false,
+        "prob": 0.25
+      }
+    },
+    "name": "This",
+    "startcat": "Kind"
+  },
+  "concretes": {}
+}
