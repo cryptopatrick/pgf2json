@@ -1,6 +1,6 @@
 [package]
 name = "pgf2json"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["CryptoPatrick <cryptopatrick@gmail.com>"]
 description = """
 This crate is an Application Programming Interface to load and interpret grammars compiled in Portable Grammar Format (PGF). The PGF format is produced as a final output from the GF compiler. The API is meant to be used for embedding GF grammars in Rust programs.
@@ -37,3 +37,4 @@ thiserror = "1.0"
 [lib]
 name = "pgf2json"
 path = "src/lib.rs"
+
