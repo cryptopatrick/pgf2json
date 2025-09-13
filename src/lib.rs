@@ -1734,40 +1734,13 @@ fn read_concretes(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<HashMa
         // Read language name
         let lang_name = match read_string(cursor, is_pgf_2_1) {
             Ok(name) => {
-                // Check if this looks like a valid language name
-                if i == 1 && (name.0.len() < 3 || !name.0.chars().all(|c| c.is_ascii_alphanumeric())) {
-                    println!("PARSER: Read suspicious language name '{}' for concrete 2, attempting ZeroSwe recovery", name.0);
-                    
-                    // Rewind to before this read and try to find ZeroSwe manually
-                    let current_pos = cursor.position();
-                    cursor.set_position(0); // Start from beginning
-                    let all_data = cursor.get_ref();
-                    
-                    // Look for the ZeroSwe string pattern
-                    if let Some(zero_swe_pos) = all_data.windows(7).position(|window| window == b"ZeroSwe") {
-                        let target_pos = u64::try_from(zero_swe_pos).unwrap_or(0);
-                        // Back up to find the length byte (should be 7 for "ZeroSwe")
-                        if target_pos > 0 {
-                            cursor.set_position(target_pos - 1);
-                            println!("PARSER: Repositioned cursor to {} to retry ZeroSwe parsing", target_pos - 1);
-                            // Try reading the language name again
-                            if let Ok(recovered_name) = read_string(cursor, is_pgf_2_1) {
-                                println!("PARSER: Successfully recovered language name: {recovered_name:?}");
-                                recovered_name
-                            } else {
-                                cursor.set_position(current_pos); // Restore position
-                                name // Use original name
-                            }
-                        } else {
-                            name
-                        }
-                    } else {
-                        name
-                    }
-                } else {
-                    name
+                // If we get an empty language name, this might indicate end of valid data
+                if name.0.is_empty() {
+                    println!("PARSER: Empty language name for concrete {}, likely end of valid concrete data", i + 1);
+                    break;
                 }
-            }
+                name
+            },
             Err(e) => {
                 println!("PARSER: Failed to read language name for concrete {}: {:?}", i + 1, e);
                 break; // Stop processing, but return what we have
@@ -1949,9 +1922,6 @@ fn parse_sequences_robust(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Resul
 fn read_concrete(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Concrete, PgfError> {
     debug_println!("DEBUG: Starting read_concrete at pos {}", cursor.position());
     
-    // Check if this is ZeroSwe by examining current position
-    let is_zero_swe = cursor.position() > 400; // ZeroSwe starts around position 462
-    
     let cflags = read_flags(cursor, is_pgf_2_1)?;
     debug_println!("DEBUG: Read {} cflags at pos {}", cflags.len(), cursor.position());
     let printnames = read_list(cursor, |c| read_printname(c, is_pgf_2_1))?;
@@ -1959,30 +1929,14 @@ fn read_concrete(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Concret
     debug_println!("DEBUG: About to read sequences, next few bytes: {:?}", 
         cursor.get_ref().get(usize::try_from(cursor.position()).unwrap_or(0)..usize::try_from(cursor.position()).unwrap_or(0) + 10).unwrap_or(&[]));
     
-    // Special handling for ZeroSwe sequence parsing
-    let sequences_len = if is_zero_swe {
-        debug_println!("DEBUG: ZeroSwe detected, positioning at 464 for sequence parsing");
-        cursor.set_position(464);
-        match read_int(cursor) {
-            Ok(len) => {
-                let seq_len = usize::try_from(len).map_err(|_| PgfError::DeserializeError { offset: cursor.position(), message: "Sequences length cannot be negative".to_string() })?;
-                debug_println!("DEBUG: ZeroSwe read {} sequences from position 464", seq_len);
-                seq_len
-            }
-            Err(e) => {
-                debug_println!("DEBUG: Failed to read ZeroSwe sequence count: {:?}", e);
-                0
-            }
+    // Read sequences normally without hardcoded positions
+    let sequences_len = match read_int(cursor) {
+        Ok(len) => usize::try_from(len).map_err(|_| PgfError::DeserializeError { offset: cursor.position(), message: "Sequences length cannot be negative".to_string() })?,
+        Err(PgfError::DeserializeError { message, .. }) if message.contains("failed to fill whole buffer") || message.contains("Parsing boundary reached") => {
+            debug_println!("DEBUG: Reached EOF reading sequences_len - using 0");
+            0
         }
-    } else {
-        match read_int(cursor) {
-            Ok(len) => usize::try_from(len).map_err(|_| PgfError::DeserializeError { offset: cursor.position(), message: "Sequences length cannot be negative".to_string() })?,
-            Err(PgfError::DeserializeError { message, .. }) if message.contains("failed to fill whole buffer") || message.contains("Parsing boundary reached") => {
-                debug_println!("DEBUG: Reached EOF reading sequences_len - using 0");
-                0
-            }
-            Err(e) => return Err(e),
-        }
+        Err(e) => return Err(e),
     };
     debug_println!("DEBUG: sequences_len={} at pos {}", sequences_len, cursor.position());
     
@@ -2050,45 +2004,21 @@ fn read_concrete(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Concret
     }
     debug_println!("DEBUG: Read {} sequences at pos {}", sequences.len(), cursor.position());
     
-    // Special handling for ZeroSwe function parsing
-    let cncfuns = if is_zero_swe {
-        debug_println!("DEBUG: ZeroSwe detected, positioning at 519 for function parsing");
-        cursor.set_position(519); // Position at the function count byte (08)
-        match read_list(cursor, |c| {
-            let pos = c.position();
-            debug_println!("DEBUG: Reading ZeroSwe cncfun at pos {}", pos);
-            let result = read_cncfun(c, is_pgf_2_1);
-            match &result {
-                Ok(fun) => debug_println!("DEBUG: Successfully read ZeroSwe cncfun '{}' with {} lins", fun.name.0, fun.lins.len()),
-                Err(e) => debug_println!("DEBUG: Failed to read ZeroSwe cncfun at pos {}: {:?}", pos, e),
-            }
-            result
-        }) {
-            Ok(funs) => {
-                debug_println!("DEBUG: Successfully read {} ZeroSwe functions", funs.len());
-                funs
-            }
-            Err(e) => {
-                debug_println!("DEBUG: Failed to read ZeroSwe cncfuns list: {:?}", e);
-                Vec::new()
-            }
+    // Read concrete functions normally
+    let cncfuns = match read_list(cursor, |c| {
+        let pos = c.position();
+        debug_println!("DEBUG: Reading cncfun at pos {}", pos);
+        let result = read_cncfun(c, is_pgf_2_1);
+        match &result {
+            Ok(fun) => debug_println!("DEBUG: Successfully read cncfun '{}' with {} lins", fun.name.0, fun.lins.len()),
+            Err(e) => debug_println!("DEBUG: Failed to read cncfun at pos {}: {:?}", pos, e),
         }
-    } else {
-        match read_list(cursor, |c| {
-            let pos = c.position();
-            debug_println!("DEBUG: Reading cncfun at pos {}", pos);
-            let result = read_cncfun(c, is_pgf_2_1);
-            match &result {
-                Ok(fun) => debug_println!("DEBUG: Successfully read cncfun '{}' with {} lins", fun.name.0, fun.lins.len()),
-                Err(e) => debug_println!("DEBUG: Failed to read cncfun at pos {}: {:?}", pos, e),
-            }
-            result
-        }) {
-            Ok(funs) => funs,
-            Err(e) => {
-                debug_println!("DEBUG: Failed to read cncfuns list, using empty list: {:?}", e);
-                Vec::new() // Use empty list instead of failing
-            }
+        result
+    }) {
+        Ok(funs) => funs,
+        Err(e) => {
+            debug_println!("DEBUG: Failed to read cncfuns list, using empty list: {:?}", e);
+            Vec::new() // Use empty list instead of failing
         }
     };
     debug_println!("DEBUG: Read {} cncfuns at pos {}", cncfuns.len(), cursor.position());
@@ -2108,11 +2038,9 @@ fn read_concrete(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Concret
     let lindefs: Vec<LinDef> = Vec::new();
     let lin_refs: Vec<LinRef> = Vec::new();
     
-    // Categories are at position 380 for both languages currently
-    // This works for ZeroEng, for ZeroSwe we need to fix function parsing first
+    // Read categories sequentially without hardcoded positions
     let current_pos = cursor.position();
-    debug_println!("DEBUG: Current pos: {}, advancing to category pos 380", current_pos);
-    cursor.set_position(380);
+    debug_println!("DEBUG: Reading categories at current pos: {}", current_pos);
     
     // Read categories using standard list parsing (following C implementation)
     let cnccats = match read_list(cursor, |c| read_cnccat(c, is_pgf_2_1)) {
