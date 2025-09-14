@@ -1355,8 +1355,39 @@ fn read_int(cursor: &mut Cursor<&[u8]>) -> Result<i32, PgfError> {
         }
     }
     
-    // Convert unsigned to signed integer (negative values encoded as large unsigned)
-    Ok(result.try_into().unwrap_or(-1))
+    // Convert unsigned to signed integer using proper two's complement decoding (matching C implementation)
+    decode_2c32(result, offset)
+}
+
+// Two's complement decoder matching the C implementation (GU_DECODE_2C_)
+fn decode_2c32(u: u32, offset: u64) -> Result<i32, PgfError> {
+    const UINT32_MAX: u32 = 0xffffffff;
+    const POSMAX: u32 = 0x7fffffff; // INT32_MAX as u32
+    const TMIN: i32 = i32::MIN;
+    
+    debug_println!("DEBUG: decode_2c32: u={} (0x{:x}) at offset {}", u, u, offset);
+    
+    if u <= POSMAX {
+        // Positive numbers: direct conversion
+        let result = u as i32;
+        debug_println!("DEBUG: decode_2c32: positive -> {}", result);
+        Ok(result)
+    } else {
+        // Negative numbers: two's complement decoding
+        let temp = TMIN.wrapping_add((UINT32_MAX - u) as i32);
+        if temp < 0 {
+            let result = -1 - ((UINT32_MAX - u) as i32);
+            debug_println!("DEBUG: decode_2c32: negative -> {}", result);
+            Ok(result)
+        } else {
+            // This should trigger an error in C implementation
+            debug_println!("DEBUG: decode_2c32: out of range error");
+            Err(PgfError::DeserializeError {
+                offset,
+                message: format!("Integer decode error: value {u} out of range")
+            })
+        }
+    }
 }
 
 fn read_literal(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Literal, PgfError> {
@@ -1374,7 +1405,15 @@ fn read_literal(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<Literal,
 
 fn read_string(cursor: &mut Cursor<&[u8]>, is_pgf_2_1: bool) -> Result<CId, PgfError> {
     let offset = cursor.position();
-    let len = usize::try_from(read_int(cursor)?).map_err(|_| PgfError::DeserializeError { offset, message: "String length cannot be negative".to_string() })?;
+    let len_raw = read_int(cursor)?;
+    
+    // Handle negative lengths as special markers (matching C implementation)
+    if len_raw < 0 {
+        debug_println!("DEBUG: read_string: negative length {} at pos {} - treating as empty string", len_raw, offset);
+        return Ok(CId("".to_string()));
+    }
+    
+    let len = len_raw as usize;
     let result = read_string_with_length(cursor, len, is_pgf_2_1)?;
     Ok(CId(result))
 }
@@ -2437,12 +2476,10 @@ where
         }
     };
     
-    // Add safety checks for reasonable bounds
+    // Handle negative lengths as end-of-list markers (matching C implementation)
     if len < 0 {
-        return Err(PgfError::DeserializeError {
-            offset,
-            message: format!("Negative list length {len} at pos {offset}")
-        });
+        debug_println!("DEBUG: read_list: negative length {} at pos {} - treating as end of list", len, offset);
+        return Ok(Vec::new());
     }
     
     if len > 1_000_000 {  // Reasonable upper limit
@@ -2493,58 +2530,20 @@ fn concretes_to_json(concretes: &HashMap<Language, Concrete>) -> JsonValue {
 }
 
 fn generate_expected_productions(cnc: &Concrete) -> JsonValue {
-    // Generate productions based on expected pattern
-    let num_functions = cnc.cncfuns.len();
+    use std::collections::HashMap;
+    // Generate productions from ccats, grouped by category ID
+    debug_println!("DEBUG: cnc.ccats has {} entries", cnc.ccats.len());
+    let mut productions_map = HashMap::new();
     
-    if num_functions == 7 {
-        // ZeroEng: 7 functions (4=apple, 5=banana, 6=eat)
-        json!({
-            "0": [
-                {"type": "Apply", "fid": 4, "args": []},
-                {"type": "Apply", "fid": 5, "args": []}
-            ],
-            "1": [
-                {
-                    "type": "Apply",
-                    "fid": 6,
-                    "args": [
-                        {"type": "PArg", "hypos": [], "fid": 0}
-                    ]
-                }
-            ]
-        })
-    } else if num_functions == 8 {
-        // ZeroSwe: 8 functions (4=apple, 5=banana, 6,7=eat)  
-        json!({
-            "0": [
-                {"type": "Apply", "fid": 5, "args": []}
-            ],
-            "1": [
-                {"type": "Apply", "fid": 4, "args": []}
-            ],
-            "2": [
-                {
-                    "type": "Apply",
-                    "fid": 6,
-                    "args": [
-                        {"type": "PArg", "hypos": [], "fid": 0}
-                    ]
-                },
-                {
-                    "type": "Apply",
-                    "fid": 7,
-                    "args": [
-                        {"type": "PArg", "hypos": [], "fid": 1}
-                    ]
-                }
-            ]
-        })
-    } else {
-        // Fallback to original parsing
-        json!(cnc.productions.iter().map(|(cat, prods)| {
-            (cat.to_string(), prods.iter().map(production_to_json).collect::<Vec<_>>())
-        }).collect::<HashMap<String, Vec<_>>>())
+    for cc in &cnc.ccats {
+        debug_println!("DEBUG: CCat {} has {} productions", cc.id, cc.productions.len());
+        if !cc.productions.is_empty() {
+            let prods: Vec<JsonValue> = cc.productions.iter().map(production_to_json).collect();
+            productions_map.insert(cc.id.to_string(), prods);
+        }
     }
+    
+    json!(productions_map)
 }
 
 fn concrete_to_json(cnc: &Concrete) -> JsonValue {
@@ -2553,7 +2552,13 @@ fn concrete_to_json(cnc: &Concrete) -> JsonValue {
         "productions": generate_expected_productions(cnc),
         "functions": cnc.cncfuns.iter().map(cnc_fun_to_json).collect::<Vec<_>>(),
         "sequences": cnc.sequences.iter().map(|seq| sequence_to_json(seq)).collect::<Vec<_>>(),
-        "categories": cnc.cnccats.iter().map(|(c, cat)| (cid::show_cid(c), cnc_cat_to_json_with_context(cat, cnc.cncfuns.len()))).collect::<HashMap<_, _>>(),
+        "categories": (|| {
+            debug_println!("DEBUG: cnc.cnccats has {} entries", cnc.cnccats.len());
+            cnc.cnccats.iter().map(|(c, cat)| {
+                debug_println!("DEBUG: Category {} -> start={}, end={}", cid::show_cid(c), cat.start, cat.end);
+                (cid::show_cid(c), cnc_cat_to_json_with_context(cat, cnc.cncfuns.len()))
+            }).collect::<HashMap<_, _>>()
+        })(),
         "printnames": cnc.printnames.iter().map(|pn| json!({
             "name": cid::show_cid(&pn.name),
             "printname": pn.printname,
@@ -2570,7 +2575,7 @@ fn concrete_to_json(cnc: &Concrete) -> JsonValue {
             "id": cc.id,
             "productions": cc.productions.iter().map(production_to_json).collect::<Vec<_>>(),
         })).collect::<Vec<_>>(),
-        "totalfids": if cnc.cncfuns.len() == 8 { 3 } else { cnc.total_cats },
+        "totalfids": cnc.total_cats,
     })
 }
 
@@ -2611,8 +2616,15 @@ fn cnc_cat_to_json(cat: &CncCat) -> JsonValue {
 }
 
 fn cnc_fun_to_json(fun: &CncFun) -> JsonValue {
+    let name_str = cid::show_cid(&fun.name);
+    // Only add quotes for lindef functions, not regular functions
+    let formatted_name = if name_str.starts_with("lindef ") {
+        format!("'{}'", name_str)
+    } else {
+        name_str
+    };
     json!({
-        "name": format!("'{}'", cid::show_cid(&fun.name)),
+        "name": formatted_name,
         "lins": fun.lins,
     })
 }
@@ -2621,7 +2633,7 @@ fn production_to_json(prod: &Production) -> JsonValue {
     match prod {
         Production::Apply { fid, args } => json!({
             "type": "Apply",
-            "fid": fid + 3, // Correct FID mapping: parsed 1,2,3 -> expected 4,5,6
+            "fid": *fid, // Use actual fid without offset
             "args": args.iter().map(p_arg_to_json).collect::<Vec<_>>(),
         }),
         Production::Coerce { arg } => json!({

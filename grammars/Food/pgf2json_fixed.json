@@ -1,3 +1,16 @@
+PARSER: PGF version 2.1, is_pgf_2_1=true
+PARSER: Reading concretes at position 782...
+PARSER: read_concretes starting at position 782
+PARSER: Reading 2 concrete syntaxes
+PARSER: Processing concrete 1 of 2
+PARSER: Reading concrete for language: CId("FoodEng")
+PARSER: Successfully parsed concrete for CId("FoodEng")
+PARSER: Processing concrete 2 of 2
+PARSER: Reading concrete for language: CId("s")
+PARSER: Failed to parse concrete for CId("s"): DeserializeError { offset: 1355, message: "Unknown literal tag: 255" }
+PARSER: Parsing error - stopping concrete parsing but returning what we have
+PARSER: Completed concrete parsing with 1 languages
+PARSER: No startcat flag found, using fallback
 {
   "abstract": {
     "funs": {
@@ -131,85 +144,85 @@
           "lins": [
             5
           ],
-          "name": "'Boring'"
+          "name": "Boring"
         },
         {
           "lins": [
             6
           ],
-          "name": "'Cheese'"
+          "name": "Cheese"
         },
         {
           "lins": [
             7
           ],
-          "name": "'Delicious'"
+          "name": "Delicious"
         },
         {
           "lins": [
             8
           ],
-          "name": "'Expensive'"
+          "name": "Expensive"
         },
         {
           "lins": [
             9
           ],
-          "name": "'Fish'"
+          "name": "Fish"
         },
         {
           "lins": [
             10
           ],
-          "name": "'Fresh'"
+          "name": "Fresh"
         },
         {
           "lins": [
             2
           ],
-          "name": "'Is'"
+          "name": "Is"
         },
         {
           "lins": [
             4
           ],
-          "name": "'Italian'"
+          "name": "Italian"
         },
         {
           "lins": [
             1
           ],
-          "name": "'QKind'"
+          "name": "QKind"
         },
         {
           "lins": [
             11
           ],
-          "name": "'That'"
+          "name": "That"
         },
         {
           "lins": [
             12
           ],
-          "name": "'This'"
+          "name": "This"
         },
         {
           "lins": [
             13
           ],
-          "name": "'Very'"
+          "name": "Very"
         },
         {
           "lins": [
             14
           ],
-          "name": "'Warm'"
+          "name": "Warm"
         },
         {
           "lins": [
             15
           ],
-          "name": "'Wine'"
+          "name": "Wine"
         }
       ],
       "lindefs": [],
