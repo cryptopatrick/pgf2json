@@ -1,0 +1,90 @@
+{
+  "abstract": {
+    "funs": {
+      "Boring": {
+        "args": [],
+        "cat": "Quality"
+      },
+      "Cheese": {
+        "args": [],
+        "cat": "Kind"
+      },
+      "Delicious": {
+        "args": [],
+        "cat": "Quality"
+      },
+      "Expensive": {
+        "args": [],
+        "cat": "Quality"
+      },
+      "Fish": {
+        "args": [],
+        "cat": "Kind"
+      },
+      "Fresh": {
+        "args": [],
+        "cat": "Quality"
+      },
+      "Is": {
+        "args": [
+          "Item",
+          "Quality"
+        ],
+        "cat": "Phrase"
+      },
+      "Italian": {
+        "args": [],
+        "cat": "Quality"
+      },
+      "QKind": {
+        "args": [
+          "Quality",
+          "Kind"
+        ],
+        "cat": "Kind"
+      },
+      "That": {
+        "args": [
+          "Kind"
+        ],
+        "cat": "Item"
+      },
+      "This": {
+        "args": [
+          "Kind"
+        ],
+        "cat": "Item"
+      },
+      "Very": {
+        "args": [
+          "Quality"
+        ],
+        "cat": "Quality"
+      },
+      "Warm": {
+        "args": [],
+        "cat": "Quality"
+      },
+      "Wine": {
+        "args": [],
+        "cat": "Kind"
+      }
+    },
+    "name": "Food",
+    "startcat": "Int"
+  },
+  "concretes": {
+    "FoodEng": {
+      "categories": {},
+      "ccats": [],
+      "flags": {},
+      "functions": [],
+      "lindefs": [],
+      "linrefs": [],
+      "printnames": [],
+      "productions": {},
+      "sequences": [],
+      "totalfids": 0
+    }
+  }
+}
