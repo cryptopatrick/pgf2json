@@ -1,11 +1,26 @@
 # Folders
 target/
+
 _docs-vibe/
 _utils/
 _exploration/
 _c/
 _java/
 _temp/
+
+/_docs-vibe/
+/_utils/
+/_exploration/
+/_c/
+/_java/
+/_temp/
+
+/_docs-vibe
+/_utils
+/_exploration
+/_c
+/_java
+/_temp
 
 # Files
 .claude
