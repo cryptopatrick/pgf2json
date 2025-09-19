@@ -1,6 +1,7 @@
 # Folders
 target/
 _docs-vibe/
+_wb/
 
 # Files
 .claude
