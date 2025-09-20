@@ -11,7 +11,7 @@ homepage = "https://github.com/CryptoPatrick/pgf2json"
 repository = "https://github.com/CryptoPatrick/pgf2json"
 keywords = ["pgf", "gf", "grammars", "nlp"]
 categories = ["command-line-utilities", "text-processing"]
-license = "Unlicense OR MIT"
+license = "MIT"
 exclude = [
   "HomebrewFormula",
   "/.github/",
