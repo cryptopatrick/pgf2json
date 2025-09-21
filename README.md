@@ -30,11 +30,11 @@
 </p>
 
 <p align="center">
-  <a href="#what-is-pgf2json">What is pgf2json</a> •
-  <a href="#features">Features</a> •
-  <a href="#how-to-use">How To Use</a> •
-  <a href="#documentation">Documentation</a> •
-  <a href="#license">License</a>
+  <a href="#-what-is-pgf2json">What is pgf2json</a> •
+  <a href="#-features">Features</a> •
+  <a href="#-how-to-use">How To Use</a> •
+  <a href="#-documentation">Documentation</a> •
+  <a href="#-license">License</a>
 </p>
 
 ## 🛎 Important Notices
@@ -47,19 +47,19 @@
 <details open="open">
   <summary>Table of Contents</summary>
   <ol>
-    <li><a href="#what-is-pgf2json">What is pgf2json</a></li>
-    <li><a href="#features">Features</a></li>
+    <li><a href="#-what-is-pgf2json">What is pgf2json</a></li>
+    <li><a href="#-features">Features</a></li>
       <ul>
-        <li><a href="#core-functionality">Core Functionality</a></li>
-        <li><a href="#parser-capabilities">Parser Capabilities</a></li>
-        <li><a href="#json-conversion">JSON Conversion</a></li>
-        <li><a href="#string-encoding">String Encoding</a></li>
+        <li><a href="#-core-functionality">Core Functionality</a></li>
+        <li><a href="#-parser-capabilities">Parser Capabilities</a></li>
+        <li><a href="#-json-conversion">JSON Conversion</a></li>
+        <li><a href="#-string-encoding">String Encoding</a></li>
       </ul>
-    <li><a href="#how-to-use">How to Use</a></li>
-    <li><a href="#testing">Testing</a></li>
-    <li><a href="#documentation">Documentation</a></li>
-    <li><a href="#health-status">Health Status</a></li>
-    <li><a href="#license">License</a></li>
+    <li><a href="#-how-to-use">How to Use</a></li>
+    <li><a href="#-testing">Testing</a></li>
+    <li><a href="#-documentation">Documentation</a></li>
+    <li><a href="#-health-status">Health Status</a></li>
+    <li><a href="#-license">License</a></li>
   </ol>
 </details>
 
